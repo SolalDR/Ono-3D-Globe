@@ -44,6 +44,21 @@ pointMesh.position.x = 2.1;
 pointMesh.position.y = 2.1;
 earthMesh.add(pointMesh);
 
+//add event on pointMesh
+var raycaster, intersects;
+var mouse, INTERSECTED;
+var POINTMESH_SIZE = 0.2;
+
+raycaster = new THREE.Raycaster();
+mouse = new THREE.Vector2();
+
+function onDocumentMouseMove( event ) {
+				event.preventDefault();
+				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+				mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+}
+
+document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 // create the geometry sphere
 var bgGeometry  = new THREE.SphereGeometry(50, 32, 32);
 // create the material, using a texture of startfield
@@ -62,8 +77,22 @@ var render = function () {
     earthMesh.rotation.y += 0.001;
     bgMesh.rotation.y += 0.001;
 
+    //set up the interaction with pointMesh
+    raycaster.setFromCamera( mouse, camera );
+		intersects = raycaster.intersectObject( pointMesh );
+    pointMesh.scale.set(1,1,1);
+
+    if ( intersects.length > 0 ) {
+        pointMesh.scale.set(2,2,2);
+		} else {
+      pointMesh.scale.set(1,1,1);
+		}
+
+
     renderer.render(scene, camera);
 };
 
 
 render();
+
+//https://github.com/mrdoob/three.js/blob/master/examples/webgl_interactive_points.html
