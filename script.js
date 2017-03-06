@@ -8,6 +8,10 @@ var coord = [
   {
     lat:51.5085300,
     lon: -0.1257400
+  },
+  {
+    lat:40.7142700,
+    lon: -74.0059700
   }
 ];
 
@@ -107,3 +111,39 @@ var render = function () {
 render();
 
 //https://github.com/mrdoob/three.js/blob/master/examples/webgl_interactive_points.html
+
+
+//Convert geo to decimal
+//
+// function toRadian(deg){
+//   return Math.PI * (deg) / 180
+// }
+//
+// const R = 3;
+// var a = R;
+// var b = R;
+// var lat = coord[1].lat;
+// var lon = coord[1].lon;
+// if(lon<0){ lon += 360; }
+// if(lat<0){ lat += 360; }
+// console.log("Coordonnées géographique : ", lat, lon);
+//
+// var y = Math.sin(toRadian(lat))*R;
+// if(lon<90 || lon>270){
+//   xFact = 1;
+// } else {
+//   xFact = -1;
+// }
+// if(lon>180){
+//   lon = 360 - lon;
+// }
+// console.log(lon);
+// var x = Math.cos(toRadian(lon))*R;
+//
+// // var x = Math.sqrt(Math.pow(R, 2) - Math.pow(y, 2))*xFact;
+// var z = Math.sqrt(Math.abs(Math.pow(R, 2) - Math.pow(x, 2) - Math.pow(y, 2)));
+//
+// console.log("Coordonnées cartésienne : ", x, y, z);
+// pointMesh.position.x = x;
+// pointMesh.position.y = y;
+// pointMesh.position.z = z;
