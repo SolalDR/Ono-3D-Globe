@@ -1,3 +1,34 @@
+function toRadian(deg){
+  return Math.PI * (deg) / 180
+}
+
+
+function convertGeoCoord(coord, r){
+  var lat = coord.lat;
+  var lon = coord.lon;
+
+  if(lon<0){ lon += 360; }
+  if(lat<0){ lat += 360; }
+  console.log("Coordonnées géographique : ", lat, lon);
+
+  var y = Math.sin(toRadian(lat))*r;
+  if(lon<90 || lon>270){
+    xFact = 1;
+  } else {
+    xFact = -1;
+  }
+  if(lon>180){
+    lon = 360 - lon;
+  }
+  console.log(lon);
+  var x = Math.cos(toRadian(lon))*r;
+  // var x = Math.sqrt(Math.pow(r, 2) - Math.pow(y, 2))*xFact;
+  var z = Math.sqrt(Math.abs(Math.pow(r, 2) - Math.pow(x, 2) - Math.pow(y, 2)));
+
+  return [x, y, z];
+}
+
+
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 camera.position.z = 10;
@@ -45,9 +76,11 @@ scene.add(earthMesh);
 var border = new THREE.RingGeometry( 0.09, 0.1, 32);
 var materialBorder = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
 var meshBorder = new THREE.Mesh( border, materialBorder );
-meshBorder.position.set(3.2, 0, 0);
+var meshCoord = convertGeoCoord(coord[1], 3);
+
+meshBorder.position.set(meshCoord[0], meshCoord[1], meshCoord[2]);
 meshBorder.lookAt(new THREE.Vector3(0, 0, 0));
-meshBorder.rotation.x += Math.PI;
+
 earthMesh.add(meshBorder);
 
 //my point
@@ -89,7 +122,7 @@ var render = function () {
     requestAnimationFrame(render);
 
     earthMesh.rotation.y += 0.001;
-    bgMesh.rotation.y += 0.001;
+    bgMesh.rotation.y -= 0.0002;
 
     //set up the interaction with pointMesh
     raycaster.setFromCamera( mouse, camera );
@@ -111,39 +144,3 @@ var render = function () {
 render();
 
 //https://github.com/mrdoob/three.js/blob/master/examples/webgl_interactive_points.html
-
-
-//Convert geo to decimal
-//
-// function toRadian(deg){
-//   return Math.PI * (deg) / 180
-// }
-//
-// const R = 3;
-// var a = R;
-// var b = R;
-// var lat = coord[1].lat;
-// var lon = coord[1].lon;
-// if(lon<0){ lon += 360; }
-// if(lat<0){ lat += 360; }
-// console.log("Coordonnées géographique : ", lat, lon);
-//
-// var y = Math.sin(toRadian(lat))*R;
-// if(lon<90 || lon>270){
-//   xFact = 1;
-// } else {
-//   xFact = -1;
-// }
-// if(lon>180){
-//   lon = 360 - lon;
-// }
-// console.log(lon);
-// var x = Math.cos(toRadian(lon))*R;
-//
-// // var x = Math.sqrt(Math.pow(R, 2) - Math.pow(y, 2))*xFact;
-// var z = Math.sqrt(Math.abs(Math.pow(R, 2) - Math.pow(x, 2) - Math.pow(y, 2)));
-//
-// console.log("Coordonnées cartésienne : ", x, y, z);
-// pointMesh.position.x = x;
-// pointMesh.position.y = y;
-// pointMesh.position.z = z;
