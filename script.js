@@ -37,21 +37,30 @@ material.specular  = new THREE.Color('grey')
 var earthMesh = new THREE.Mesh(geometry, material);
 scene.add(earthMesh);
 
-var point   = new THREE.SphereGeometry(.1, 32, 32);
-var materialPoint  = new THREE.MeshPhongMaterial();
+//my point's border
+var border = new THREE.RingGeometry( 0.09, 0.1, 32);
+var materialBorder = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
+var meshBorder = new THREE.Mesh( border, materialBorder );
+meshBorder.position.set(3.2, 0, 0);
+meshBorder.lookAt(new THREE.Vector3(0, 0, 0));
+meshBorder.rotation.x += Math.PI;
+earthMesh.add(meshBorder);
+
+//my point
+var point = new THREE.CircleGeometry( 0.05, 32);
+var materialPoint  = new THREE.MeshBasicMaterial( { color: 0xffffff,side: THREE.DoubleSide } );
 var pointMesh = new THREE.Mesh(point, materialPoint);
-pointMesh.position.x = 2.1;
-pointMesh.position.y = 2.1;
-earthMesh.add(pointMesh);
+meshBorder.add(pointMesh);
 
 //add event on pointMesh
 var raycaster, intersects;
 var mouse, INTERSECTED;
 var POINTMESH_SIZE = 0.2;
 
+
 raycaster = new THREE.Raycaster();
 mouse = new THREE.Vector2();
-
+intersects = raycaster.intersectObject( pointMesh );
 function onDocumentMouseMove( event ) {
 				event.preventDefault();
 				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
@@ -59,6 +68,7 @@ function onDocumentMouseMove( event ) {
 }
 
 document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+
 // create the geometry sphere
 var bgGeometry  = new THREE.SphereGeometry(50, 32, 32);
 // create the material, using a texture of startfield
@@ -79,7 +89,6 @@ var render = function () {
 
     //set up the interaction with pointMesh
     raycaster.setFromCamera( mouse, camera );
-		intersects = raycaster.intersectObject( pointMesh );
     pointMesh.scale.set(1,1,1);
 
     if ( intersects.length > 0 ) {
@@ -88,7 +97,9 @@ var render = function () {
       pointMesh.scale.set(1,1,1);
 		}
 
-
+    var minRadius = 0.001 + Math.sin(new Date().getTime() * .0025);
+    var maxRadius = 0.002 + Math.sin(new Date().getTime() * .0025);
+    meshBorder.scale.set(minRadius, maxRadius, 32);
     renderer.render(scene, camera);
 };
 
