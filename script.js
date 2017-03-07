@@ -81,15 +81,8 @@ function convertGeoCoord(coord, r){
 }
 
 
-//Initialisation
-var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
-camera.position.z = 10;
-var renderer = new THREE.WebGLRenderer();
-renderer.setSize( window.innerWidth, window.innerHeight );
-document.body.appendChild( renderer.domElement );
-
-var controls, light, axes,
+var scene, camera, renderer,
+controls, light, axes,
 earthGeo, earthMaterial, earthMesh,
 raycaster, intersects, mouse, activeMesh,
 bgMesh, bgGeometry, bgMaterial,
@@ -97,12 +90,23 @@ meshBorders, borderGeo, borderMaterial,
 meshCoord, pointGeo, pointMaterial,
 minRadius, maxRadius;
 
-const POINTMESH_SIZE = 0.2;
+const POINT_SIZE = 0.05;
+const EARTH_SIZE = 3;
+const DISTANT_CAMERA = 7;
+
+//Initialisation
+scene = new THREE.Scene();
+camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+camera.position.z = DISTANT_CAMERA;
+renderer = new THREE.WebGLRenderer();
+renderer.setSize( window.innerWidth, window.innerHeight );
+document.body.appendChild( renderer.domElement );
+
 
 //Création du controls de la caméra
 controls = new THREE.OrbitControls( camera, renderer.domElement );
 controls.addEventListener( 'change', render ); // remove when using animation loop
-controls.enableZoom = true;
+controls.enableZoom = false;
 
 //Affichage des axes orthonormé
 axes = buildAxes( 1000 );
@@ -111,8 +115,10 @@ axes = buildAxes( 1000 );
 light = new THREE.AmbientLight( 0x404040, 5); // soft white light
 scene.add( light );
 
+
+
 //Création de la terre
-earthGeo   = new THREE.SphereGeometry(3, 32, 32);
+earthGeo   = new THREE.SphereGeometry(EARTH_SIZE, 32, 32);
 earthMaterial  = new THREE.MeshPhongMaterial({
   map: THREE.ImageUtils.loadTexture('assets/earthnight.jpg'),
   bumpMap: THREE.ImageUtils.loadTexture('assets/earthbump1k.jpg'),
@@ -124,11 +130,11 @@ earthMesh = new THREE.Mesh(earthGeo, earthMaterial);
 scene.add(earthMesh);
 camera.lookAt(earthMesh.position)
 
-//Affichage des pointMesh
+//Affichage des points
 meshBorders = [];
 borderGeo = new THREE.RingGeometry( 0.09, 0.1, 32);
 borderMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
-pointGeo = new THREE.CircleGeometry( 0.05, 32);
+pointGeo = new THREE.CircleGeometry( POINT_SIZE, 32);
 pointMaterial  = new THREE.MeshBasicMaterial( { color: 0xffffff,side: THREE.DoubleSide } );
 for(i=0; i<coord.length; i++){
   meshBorders.push(new THREE.Mesh( borderGeo, borderMaterial ));
@@ -139,6 +145,16 @@ for(i=0; i<coord.length; i++){
   earthMesh.add(meshBorders[i]);
 }
 earthMesh.add(axes);
+
+
+var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+scene.add( directionalLight );
+
+var mouseGeometry = new THREE.SphereGeometry(1, 1, 1);
+var mouseMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff });
+mouseMesh = new THREE.Mesh(mouseGeometry, mouseMaterial);
+directionalLight.target = mouseMesh;
+scene.add(directionalLight.target)
 
 //Gestion de l'évenement
 raycaster = new THREE.Raycaster();
@@ -161,16 +177,42 @@ bgMaterial  = new THREE.MeshBasicMaterial({
 bgMesh  = new THREE.Mesh(bgGeometry, bgMaterial);
 scene.add(bgMesh);
 
+var hasTarget = false;
+var targetCoord;
+//
+// function moveTo(coord){
+//   hasTarget = true;
+//   targetCoord = coord;
+// }
+
+// function approachTarget(){
+//   if(targetCoord != null){
+//     Math.sin(coord(lat))*DISTANT_CAMERA
+//     //On récupère les coordonnées de la caméra
+//     //On récupère les coordonnées de ville
+//
+//
+//   }
+// }
 
 var render = function () {
     requestAnimationFrame(render);
 
-    earthMesh.rotation.y += 0.001;
-    bgMesh.rotation.y -= 0.0002;
+    if(!hasTarget){
+      earthMesh.rotation.y += 0.001;
+      bgMesh.rotation.y -= 0.0002;
+    } else {
+      aproachTarget();
+    }
+
+
+    directionalLight.position.x = camera.position.x*0.9;
+    directionalLight.position.y = camera.position.y*0.9;
+    directionalLight.position.z = camera.position.z*0.9;
+
 
     raycaster.setFromCamera( mouse, camera );
     if ( intersects.length > 0 ) {
-      alert("Bonjour");
       intersects[0].scale.set(2,2,2);
       activeMesh = intersects[0];
 		} else {
