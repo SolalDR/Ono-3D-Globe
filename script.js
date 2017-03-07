@@ -24,8 +24,13 @@ function buildAxes( length ) {
 
 //Convertit les degré en radian
 function toRadian(deg){
-  return Math.PI * (deg) / 180
+  return Math.PI * (deg) / 180;
 }
+
+function toDegre(rad){
+  return rad*180/Math.PI;
+}
+
 
 var coord = [
   {
@@ -70,13 +75,15 @@ function convertGeoCoord(coord, r){
   lat = coord.lat;
   lon = coord.lon;
 
-  xFact = lon>-90 || lon<90 ? 1 : -1;
-  yFact = lat>0 ? 1 : -1;
+  xFact = lon>=-90 || lon<=90 ? 1 : -1;
+  yFact = lat>=0 ? 1 : -1;
   zFact = lon>0 ? -1 : 1;
 
   y = Math.sin(toRadian(Math.abs(lat)))*r*yFact;
+  newRr = Math.sqrt(Math.pow(r, 2) - Math.pow(y, 2));
   x = Math.cos(toRadian(Math.abs(lon)))*r*xFact;
-  z = Math.sqrt(Math.abs(Math.pow(r, 2) - Math.pow(x, 2) - Math.pow(y, 2)))*zFact;
+  z = Math.sqrt(Math.abs(Math.pow(newRr, 2) - Math.pow(x, 2)))*zFact;
+  // z = Math.sqrt(Math.abs(Math.pow(r, 2) - Math.pow(x, 2) - Math.pow(y, 2)))*zFact;
   return [x, y, z];
 }
 
@@ -109,13 +116,11 @@ controls.addEventListener( 'change', render ); // remove when using animation lo
 controls.enableZoom = false;
 
 //Affichage des axes orthonormé
-axes = buildAxes( 1000 );
+// axes = buildAxes( 1000 );
 
 //Lumière ambiente
 light = new THREE.AmbientLight( 0x404040, 5); // soft white light
 scene.add( light );
-
-
 
 //Création de la terre
 earthGeo   = new THREE.SphereGeometry(EARTH_SIZE, 32, 32);
@@ -144,17 +149,11 @@ for(i=0; i<coord.length; i++){
   meshBorders[i].add(new THREE.Mesh(pointGeo, pointMaterial));
   earthMesh.add(meshBorders[i]);
 }
+
+
 earthMesh.add(axes);
 
 
-var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-scene.add( directionalLight );
-
-var mouseGeometry = new THREE.SphereGeometry(1, 1, 1);
-var mouseMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff });
-mouseMesh = new THREE.Mesh(mouseGeometry, mouseMaterial);
-directionalLight.target = mouseMesh;
-scene.add(directionalLight.target)
 
 //Gestion de l'évenement
 raycaster = new THREE.Raycaster();
@@ -167,7 +166,6 @@ function onDocumentMouseMove( event ) {
 }
 document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 
-
 //Gestion du fond étoilé
 bgGeometry  = new THREE.SphereGeometry(50, 32, 32);
 bgMaterial  = new THREE.MeshBasicMaterial({
@@ -179,47 +177,93 @@ scene.add(bgMesh);
 
 var hasTarget = false;
 var targetCoord;
-//
-// function moveTo(coord){
-//   hasTarget = true;
-//   targetCoord = coord;
-// }
 
-// function approachTarget(){
-//   if(targetCoord != null){
-//     Math.sin(coord(lat))*DISTANT_CAMERA
-//     //On récupère les coordonnées de la caméra
-//     //On récupère les coordonnées de ville
-//
-//
-//   }
-// }
+function getCameraCoordGeo(){
+  var factYCamera = camera.position.y>0 ? 1 : -1;
+  var factXCamera = camera.position.z>0 ? -1 : 1;
+  var hyp = Math.sqrt(Math.pow(camera.position.x, 2) + Math.pow(camera.position.z, 2));
+  var rep = {};
+  rep.lat = toDegre(Math.asin(camera.position.y/DISTANT_CAMERA));
+  rep.lon = factXCamera*toDegre(Math.acos(camera.position.x/hyp));
+  rep.x = camera.position.x;
+  rep.y = camera.position.y;
+  rep.z = camera.position.z;
+  return rep;
+}
+
+DURATION_MOVE = 500;
+function moveTo(coord){
+  hasTarget = true;
+  target = {
+    startMove : new Date().getTime(),
+    targetCoord : coord,
+    origin : {},
+    actual: {},
+    distance: {}
+  };
+  target.origin = getCameraCoordGeo();
+  var rotation = toDegre(earthMesh.rotation.y) + coord.lon;
+  target.distance.lon = rotation - target.origin.lon;
+  target.distance.lat = coord.lat - target.origin.lat;
+}
+
+function approachTarget(){
+  if(hasTarget != false){
+    target.actual = getCameraCoordGeo();
+    var nextLat;
+    var nextLon;
+    var time = new Date().getTime();
+    avancement = (time - target.startMove)/DURATION_MOVE;
+
+    if(avancement>1){
+      hasTarget = false;
+    } else {
+
+      nextLon = avancement*target.distance.lon+target.origin.lon;
+      nextLat = avancement*target.distance.lat+target.origin.lat;
+      var tmpCoord = convertGeoCoord({
+        lat:nextLat,
+        lon:nextLon
+      }, DISTANT_CAMERA);
+      console.log(tmpCoord);
+      camera.position.set(tmpCoord[0], tmpCoord[1], tmpCoord[2]);
+      camera.lookAt(earthMesh.position);
+    }
+  }
+}
+
+var meshTest = new THREE.DirectionalLight( 0xffffff, .3);
+meshTest.target = earthMesh;
+scene.add(meshTest);
 
 var render = function () {
     requestAnimationFrame(render);
 
     if(!hasTarget){
-      earthMesh.rotation.y += 0.001;
-      bgMesh.rotation.y -= 0.0002;
+      // earthMesh.rotation.y += 0.001;
+      // bgMesh.rotation.y -= 0.0002;
     } else {
-      aproachTarget();
+      approachTarget();
     }
 
 
-    directionalLight.position.x = camera.position.x*0.9;
-    directionalLight.position.y = camera.position.y*0.9;
-    directionalLight.position.z = camera.position.z*0.9;
-
-
     raycaster.setFromCamera( mouse, camera );
-    if ( intersects.length > 0 ) {
-      intersects[0].scale.set(2,2,2);
-      activeMesh = intersects[0];
+    intersectsEarth = raycaster.intersectObject(earthMesh);
+
+    if ( intersectsEarth.length > 0 ) {
+
+      meshTest.position.copy( intersectsEarth[0].point );
+      meshTest.position.x *= 5;
+      meshTest.position.y *= 5;
+      meshTest.position.z *= 5;
+
+      meshTest.lookAt(earthMesh.position);
+
 		} else {
-      if(activeMesh != null){
-        activeMesh.scale.set(1,1,1);
-      }
-      activeMesh = null;
+      // if(activeMesh != null){
+      //   activeMesh.scale.set(1,1,1);
+      // }
+      // activeMesh = null;
 		}
 
     for(i=0; i<meshBorders.length;i++){
