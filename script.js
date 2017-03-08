@@ -70,6 +70,14 @@ var coord = [
   }
 ];
 
+var Bezier = {
+  "ease":[.25,.1,.25,1],
+  "linear":[0,0,1,1],
+  "ease-in":[.42,0,1,1],
+  "ease-out":[0,0,.58,1],
+  "ease-in-out":[.42,0,.58,1]
+}
+
 function convertGeoCoord(coord, r){
   var lat, lon, xFact, yFact, y, x, z;
   lat = coord.lat;
@@ -81,9 +89,8 @@ function convertGeoCoord(coord, r){
 
   y = Math.sin(toRadian(Math.abs(lat)))*r*yFact;
   newRr = Math.sqrt(Math.pow(r, 2) - Math.pow(y, 2));
-  x = Math.cos(toRadian(Math.abs(lon)))*r*xFact;
-  z = Math.sqrt(Math.abs(Math.pow(newRr, 2) - Math.pow(x, 2)))*zFact;
-  // z = Math.sqrt(Math.abs(Math.pow(r, 2) - Math.pow(x, 2) - Math.pow(y, 2)))*zFact;
+  x = Math.cos(toRadian(Math.abs(lon)))*newRr*xFact;
+  z = Math.sqrt(Math.pow(newRr, 2) - Math.pow(x, 2))*zFact;
   return [x, y, z];
 }
 
@@ -92,14 +99,22 @@ var scene, camera, renderer,
 controls, light, axes,
 earthGeo, earthMaterial, earthMesh,
 raycaster, intersects, mouse, activeMesh,
-bgMesh, bgGeometry, bgMaterial,
+hasTarget = false,
+bgMesh, bgGeometry, bgMaterial, earthRotation, skyRotation,
 meshBorders, borderGeo, borderMaterial,
 meshCoord, pointGeo, pointMaterial,
 minRadius, maxRadius;
 
-const POINT_SIZE = 0.05;
-const EARTH_SIZE = 3;
-const DISTANT_CAMERA = 7;
+
+//CONFIGURATION
+var POINT_SIZE = 0.08;
+var EARTH_SIZE = 3;
+var DISTANT_CAMERA = 7;
+var DURATION_MOVE = 500;
+var TIMING_FUNCTION = "ease-in-out";
+earthRotation = false;
+skyRotation = true;
+
 
 //Initialisation
 scene = new THREE.Scene();
@@ -113,23 +128,25 @@ document.body.appendChild( renderer.domElement );
 //Création du controls de la caméra
 controls = new THREE.OrbitControls( camera, renderer.domElement );
 controls.addEventListener( 'change', render ); // remove when using animation loop
-controls.enableZoom = false;
+controls.enableZoom = true;
 
 //Affichage des axes orthonormé
-// axes = buildAxes( 1000 );
+// axes = buildAxes( 3000 );
 
 //Lumière ambiente
-light = new THREE.AmbientLight( 0x404040, 5); // soft white light
+light = new THREE.AmbientLight( 0x404040, 6); // soft white light
 scene.add( light );
+
+//Lumière dirigée
+var spotLight = new THREE.PointLight( 0xffffff, 0);
+scene.add(spotLight);
 
 //Création de la terre
 earthGeo   = new THREE.SphereGeometry(EARTH_SIZE, 32, 32);
 earthMaterial  = new THREE.MeshPhongMaterial({
   map: THREE.ImageUtils.loadTexture('assets/earthnight.jpg'),
-  bumpMap: THREE.ImageUtils.loadTexture('assets/earthbump1k.jpg'),
-  bumpScale : 0.05,
   specularMap: THREE.ImageUtils.loadTexture('assets/earthspec1k.jpg'),
-  specular: new THREE.Color('grey')
+  specular: new THREE.Color('black')
 });
 earthMesh = new THREE.Mesh(earthGeo, earthMaterial);
 scene.add(earthMesh);
@@ -137,34 +154,40 @@ camera.lookAt(earthMesh.position)
 
 //Affichage des points
 meshBorders = [];
-borderGeo = new THREE.RingGeometry( 0.09, 0.1, 32);
+borderGeo = new THREE.RingGeometry( 0.12, 0.13, 32);
 borderMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
 pointGeo = new THREE.CircleGeometry( POINT_SIZE, 32);
 pointMaterial  = new THREE.MeshBasicMaterial( { color: 0xffffff,side: THREE.DoubleSide } );
 for(i=0; i<coord.length; i++){
-  meshBorders.push(new THREE.Mesh( borderGeo, borderMaterial ));
+  meshBorders.push(new THREE.Mesh(pointGeo, pointMaterial));
   meshCoord = convertGeoCoord(coord[i], 3);
   meshBorders[i].position.set(meshCoord[0], meshCoord[1], meshCoord[2]);
   meshBorders[i].lookAt(new THREE.Vector3(0, 0, 0));
-  meshBorders[i].add(new THREE.Mesh(pointGeo, pointMaterial));
+  meshBorders[i].add(new THREE.Mesh( borderGeo, borderMaterial ));
+  meshBorders[i].rank = i;
   earthMesh.add(meshBorders[i]);
 }
-
-
 earthMesh.add(axes);
 
-
-
-//Gestion de l'évenement
+//Gestion des évenements
 raycaster = new THREE.Raycaster();
 mouse = new THREE.Vector2();
-intersects = raycaster.intersectObjects( earthMesh.children );
 function onDocumentMouseMove( event ) {
 	event.preventDefault();
 	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 }
+
+function onDocumentMouseDown( event ) {
+  event.preventDefault();
+  var intersects = raycaster.intersectObjects( earthMesh.children );
+  if ( intersects.length > 0) {
+    moveTo(coord[intersects[0].object.rank], DURATION_MOVE, TIMING_FUNCTION);
+  }
+}
 document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+
 
 //Gestion du fond étoilé
 bgGeometry  = new THREE.SphereGeometry(50, 32, 32);
@@ -175,8 +198,6 @@ bgMaterial  = new THREE.MeshBasicMaterial({
 bgMesh  = new THREE.Mesh(bgGeometry, bgMaterial);
 scene.add(bgMesh);
 
-var hasTarget = false;
-var targetCoord;
 
 function getCameraCoordGeo(){
   var factYCamera = camera.position.y>0 ? 1 : -1;
@@ -191,12 +212,15 @@ function getCameraCoordGeo(){
   return rep;
 }
 
-DURATION_MOVE = 500;
-function moveTo(coord){
+//Enclenche le déplacement vers un point
+function moveTo(coord, duration, animation){
+  var anim = Bezier[animation];
   hasTarget = true;
   target = {
     startMove : new Date().getTime(),
     targetCoord : coord,
+    duration: duration,
+    easing : BezierEasing(anim[0], anim[1], anim[2], anim[3]),
     origin : {},
     actual: {},
     distance: {}
@@ -207,69 +231,61 @@ function moveTo(coord){
   target.distance.lat = coord.lat - target.origin.lat;
 }
 
+//Si une direction est établie, on s'en rapproche
 function approachTarget(){
   if(hasTarget != false){
-    target.actual = getCameraCoordGeo();
-    var nextLat;
-    var nextLon;
-    var time = new Date().getTime();
-    avancement = (time - target.startMove)/DURATION_MOVE;
-
-    if(avancement>1){
+    target.actual = getCameraCoordGeo(); //Coordonné à l'instant t de la caméra
+    var t = new Date().getTime() - target.startMove; //Durée passé depuis le début de l'anim
+    avancement = target.easing(t/target.duration); //Pourcentage de l'anim en fonction de bézier
+    // Si l'animation est terminé, on supprime la cible
+    if(t/target.duration>=1){
       hasTarget = false;
     } else {
-
-      nextLon = avancement*target.distance.lon+target.origin.lon;
-      nextLat = avancement*target.distance.lat+target.origin.lat;
+      //Sinon on met à jour la position de la caméra
       var tmpCoord = convertGeoCoord({
-        lat:nextLat,
-        lon:nextLon
+        lat:avancement*target.distance.lat+target.origin.lat,
+        lon:avancement*target.distance.lon+target.origin.lon
       }, DISTANT_CAMERA);
-      console.log(tmpCoord);
       camera.position.set(tmpCoord[0], tmpCoord[1], tmpCoord[2]);
       camera.lookAt(earthMesh.position);
     }
   }
 }
 
-var meshTest = new THREE.DirectionalLight( 0xffffff, .3);
-meshTest.target = earthMesh;
-scene.add(meshTest);
 
 var render = function () {
     requestAnimationFrame(render);
 
+    if(skyRotation){
+      bgMesh.rotation.y -= 0.0002;
+    }
     if(!hasTarget){
-      // earthMesh.rotation.y += 0.001;
-      // bgMesh.rotation.y -= 0.0002;
+      if(earthRotation){
+        earthMesh.rotation.y += 0.001;
+      }
     } else {
       approachTarget();
     }
 
-
     raycaster.setFromCamera( mouse, camera );
+
+    //Lumière sur la terre
     intersectsEarth = raycaster.intersectObject(earthMesh);
-
     if ( intersectsEarth.length > 0 ) {
-
-      meshTest.position.copy( intersectsEarth[0].point );
-      meshTest.position.x *= 5;
-      meshTest.position.y *= 5;
-      meshTest.position.z *= 5;
-
-      meshTest.lookAt(earthMesh.position);
-
+      spotLight.position.copy( intersectsEarth[0].point );
+      spotLight.position.x *= 1.1;
+      spotLight.position.y *= 1.1;
+      spotLight.position.z *= 1.1;
+      spotLight.intensity = 4;
+      spotLight.lookAt(earthMesh.position);
 		} else {
-      // if(activeMesh != null){
-      //   activeMesh.scale.set(1,1,1);
-      // }
-      // activeMesh = null;
+      spotLight.intensity = 0;
 		}
 
     for(i=0; i<meshBorders.length;i++){
-      minRadius = 0.001 + Math.sin(new Date().getTime() * .0025+i);
-      maxRadius = 0.002 + Math.sin(new Date().getTime() * .0025+i);
-      meshBorders[i].scale.set(minRadius, maxRadius, 32);
+      minRadius = .01 + Math.sin(new Date().getTime() * .0015+i);
+      maxRadius = .02 + Math.sin(new Date().getTime() * .0015+i);
+      meshBorders[i].children[0].scale.set(minRadius, maxRadius, 32);
     }
     renderer.render(scene, camera);
 };
