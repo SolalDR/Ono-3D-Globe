@@ -31,45 +31,6 @@ function toDegre(rad){
   return rad*180/Math.PI;
 }
 
-
-var coord = [
-  {
-    name: "London",
-    lat: 51.5085,
-    lon: -0.1257
-  },
-  {
-    name: "New York",
-    lat:40.7142700,
-    lon: -74.0059700
-  },
-  {
-    name: "Brasilia",
-    lat: -15.7797200,
-    lon: -47.9297200
-  },
-  {
-    name: "Le Caire",
-    lat: 30.0626300,
-    lon: 31.2496700
-  },
-  {
-    name: "Melbourne",
-    lat: -37.8140000,
-    lon: 144.9633200
-  },
-  {
-    name: "Manchester",
-    lat: 53.4809,
-    lon: -2.2374
-  },
-  {
-    name: "Tokyo",
-    lat: 35.6895000,
-    lon: 139.6917100
-  }
-];
-
 var Bezier = {
   "ease":[.25,.1,.25,1],
   "linear":[0,0,1,1],
@@ -104,21 +65,25 @@ bgMesh, bgGeometry, bgMaterial, earthRotation, skyRotation,
 meshBorders, borderGeo, borderMaterial,
 meshCoord, pointGeo, pointMaterial,
 minRadius, maxRadius;
-
+const CODE_POPIN_OPEN = 1;
+const CODE_LEFT_SIDE = 2;
+const CODE_RIGHT_SIDE = 3;
 
 //CONFIGURATION
 var POINT_SIZE = 0.08;
 var EARTH_SIZE = 3;
 var DISTANT_CAMERA = 7;
-var DURATION_MOVE = 500;
+var DURATION_MOVE = 1000;
 var TIMING_FUNCTION = "ease-in-out";
+var CAMERA_DECAL = .7;
+var onClickPoint = CODE_POPIN_OPEN;
 earthRotation = false;
 skyRotation = true;
 
 
 //Initialisation
 scene = new THREE.Scene();
-camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 1, 1000 );
 camera.position.z = DISTANT_CAMERA;
 renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
@@ -181,8 +146,20 @@ function onDocumentMouseMove( event ) {
 function onDocumentMouseDown( event ) {
   event.preventDefault();
   var intersects = raycaster.intersectObjects( earthMesh.children );
-  if ( intersects.length > 0) {
-    moveTo(coord[intersects[0].object.rank], DURATION_MOVE, TIMING_FUNCTION);
+  if(recenter.isNeed){
+    var anim = Bezier[TIMING_FUNCTION];
+    recenter.init(BezierEasing(anim[0], anim[1], anim[2], anim[3]));
+    if(intersects.length > 0){
+      recenter.callBack.exec = moveTo;
+      recenter.callBack.params.push(coord[intersects[0].object.rank], DURATION_MOVE, TIMING_FUNCTION);
+    }
+  } else if ( intersects.length > 0) {
+    moveTo(coord[intersects[0].object.rank], DURATION_MOVE, TIMING_FUNCTION, intersects[0].object.rank);
+  }
+
+
+  if(PopinThree.isDisplay()){
+    PopinThree.hide();
   }
 }
 document.addEventListener( 'mousemove', onDocumentMouseMove, false );
@@ -213,10 +190,11 @@ function getCameraCoordGeo(){
 }
 
 //Enclenche le déplacement vers un point
-function moveTo(coord, duration, animation){
+function moveTo(coord, duration, animation, rank){
   var anim = Bezier[animation];
   hasTarget = true;
   target = {
+    rank : rank,
     startMove : new Date().getTime(),
     targetCoord : coord,
     duration: duration,
@@ -227,8 +205,28 @@ function moveTo(coord, duration, animation){
   };
   target.origin = getCameraCoordGeo();
   var rotation = toDegre(earthMesh.rotation.y) + coord.lon;
-  target.distance.lon = rotation - target.origin.lon;
-  target.distance.lat = coord.lat - target.origin.lat;
+  switch (onClickPoint) {
+    case CODE_LEFT_SIDE:
+      target.distance.lon = rotation - target.origin.lon + 20;
+      target.distance.lat = 0 - target.origin.lat;
+      target.cameraDecal = CAMERA_DECAL;
+      onClickPoint = CODE_RIGHT_SIDE;
+      break;
+    case CODE_RIGHT_SIDE:
+      target.distance.lon = rotation - target.origin.lon - 20;
+      target.distance.lat = 0 - target.origin.lat;
+      target.cameraDecal = -CAMERA_DECAL;
+      onClickPoint = CODE_LEFT_SIDE;
+      break;
+    case CODE_POPIN_OPEN:
+      target.distance.lon = rotation - target.origin.lon;
+      target.distance.lat = coord.lat - target.origin.lat;
+      break;
+    default:
+
+  }
+  console.log("Camera init : ", camera.rotation.y);
+
 }
 
 //Si une direction est établie, on s'en rapproche
@@ -240,6 +238,14 @@ function approachTarget(){
     // Si l'animation est terminé, on supprime la cible
     if(t/target.duration>=1){
       hasTarget = false;
+      if(onClickPoint === CODE_POPIN_OPEN){
+        PopinThree.updateContent(target.targetCoord.content);
+        PopinThree.display();
+      } else {
+        recenter.isNeed = true;
+        recenter.decal = -1*target.cameraDecal;
+        controls.enabled = false;
+      }
     } else {
       //Sinon on met à jour la position de la caméra
       var tmpCoord = convertGeoCoord({
@@ -248,9 +254,45 @@ function approachTarget(){
       }, DISTANT_CAMERA);
       camera.position.set(tmpCoord[0], tmpCoord[1], tmpCoord[2]);
       camera.lookAt(earthMesh.position);
+      if(target.cameraDecal){
+        camera.rotation.y+= avancement*target.cameraDecal;
+      }
     }
   }
 }
+
+var recenter = {
+  callBack : {params:[]},
+  approach:function(){
+    this.current = new Date().getTime();
+    var t = this.current - this.start;
+    // console.log(t);
+    avancement = this.ease(t/DURATION_MOVE);
+    console.log(avancement);
+
+    if(this.decal){
+      camera.rotation.y = this.initialRotate+avancement*this.decal;
+    }
+    //Quand l'avancement est complet, on réactive le control
+    if(t/DURATION_MOVE>=1){
+      controls.enabled = true;
+      this.isMoving = false;
+      if(this.callBack.exec != null){
+        this.callBack.exec(this.callBack.params[0], this.callBack.params[1], this.callBack.params[2])
+        this.callBack.exec = null;
+        this.callBack.params= [];
+      }
+    }
+  },
+  init:function(ease) {
+    this.start = new Date().getTime();
+    this.isMoving = true;
+    this.ease = ease;
+    this.isNeed = false;
+    this.initialRotate = camera.rotation.y;
+  }
+}
+
 
 
 var render = function () {
@@ -259,11 +301,16 @@ var render = function () {
     if(skyRotation){
       bgMesh.rotation.y -= 0.0002;
     }
-    if(!hasTarget){
+
+    if(!hasTarget || recenter.isMoving){
       if(earthRotation){
         earthMesh.rotation.y += 0.001;
       }
+      if(recenter.isMoving){
+        recenter.approach();
+      }
     } else {
+      //Si on est en train de recentrer
       approachTarget();
     }
 
@@ -289,7 +336,6 @@ var render = function () {
     }
     renderer.render(scene, camera);
 };
-
 
 render();
 

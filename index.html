@@ -6,9 +6,130 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
+    <div id="onoStoriesPopin" class="popin hidden">
+      <div class="container">
+        <div class="center">
+          <div class="title"></div>
+          <canvas class="sound"></canvas>
+          <div class="content"></div>
+          <div class="data-visualisation"></div>
+        </div>
+      </div>
+    </div>
     <script src="lib/three.js-master/build/three.min.js"></script>
     <script src="lib/three.js-master/examples/js/controls/OrbitControls.js"></script>
     <script src="BezierEasing.js" type="text/javascript"></script>
+    <script src="onoHystory.js" type="text/javascript"></script>
+    <script>
+    var coord = [
+      {
+        content: {
+          name: "London",
+          text : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque mollis arcu mattis nibh facilisis, vitae auctor ex accumsan. Integer quis magna nibh. Nullam laoreet maximus placerat. Proin pellentesque nisl nisi, quis mattis nisl porta a. Proin aliquet nibh ac metus sagittis, sit amet pharetra est sodales. Ut pharetra id arcu id bibendum. Praesent a turpis consequat, vestibulum erat quis, dapibus mi. Fusce gravida risus at sapien volutpat dictum. In hac habitasse platea dictumst. Quisque facilisis mi tellus, eu lacinia purus consequat eget. Quisque a tellus ultricies, placerat diam vitae, hendrerit leo. Aenean auctor convallis purus, a elementum nibh dapibus nec. Pellentesque lorem felis, hendrerit quis purus sit amet, lacinia feugiat sapien. Suspendisse finibus, justo at suscipit iaculis, turpis augue faucibus nulla, sit amet rutrum lacus mi rutrum arcu. Vivamus pulvinar porttitor magna a pellentesque. Phasellus mattis neque diam, eget tempor lectus ullamcorper nec. ",
+          data : [
+            {
+              count: 20,
+              type: "%",
+              text:"20% des gens sont fans du numérique"
+            }
+          ]
+        },
+        lat: 51.5085,
+        lon: -0.1257
+      },
+      {
+        content: {
+          name: "New York",
+          text : "Bonjour les gens, c'est génial",
+          data : [
+            {
+              count: 20,
+              type: "%",
+              text:"20% des gens sont fans du numérique"
+            }
+          ]
+        },
+        lat:40.7142700,
+        lon: -74.0059700
+      },
+      {
+        content: {
+          name: "Brasilia",
+          text : "Bonjour les gens, c'est génial",
+          data : [
+            {
+              count: 20,
+              type: "%",
+              text:"20% des gens sont fans du numérique"
+            }
+          ]
+        },
+        lat: -15.7797200,
+        lon: -47.9297200
+      },
+      {
+        content: {
+          name: "Le Caire",
+          text : "Bonjour les gens, c'est génial",
+          data : [
+            {
+              count: 20,
+              type: "%",
+              text:"20% des gens sont fans du numérique"
+            }
+          ]
+        },
+        lat: 30.0626300,
+        lon: 31.2496700
+      },
+      {
+        content: {
+          name: "Melbourne",
+          text : "Bonjour les gens, c'est génial",
+          data : [
+            {
+              count: 20,
+              type: "%",
+              text:"20% des gens sont fans du numérique"
+            }
+          ]
+        },
+        lat: -37.8140000,
+        lon: 144.9633200
+      },
+      {
+        content: {
+          name: "Manchester",
+          text : "Bonjour les gens, c'est génial",
+          data : [
+            {
+              count: 20,
+              type: "%",
+              text:"20% des gens sont fans du numérique"
+            }
+          ]
+        },
+        lat: 53.4809,
+        lon: -2.2374
+      },
+      {
+        content: {
+          name: "Tokyo",
+          text : "Bonjour les gens, c'est génial",
+          data : [
+            {
+              count: 20,
+              type: "%",
+              text:"20% des gens sont fans du numérique"
+            }
+          ]
+        },
+        lat: 35.6895000,
+        lon: 139.6917100
+      }
+    ];
+    </script>
+    <script type="text/javascript" src="CircleProgress.js"></script>
     <script type="text/javascript" src="script.js"></script>
   </body>
 </html>
