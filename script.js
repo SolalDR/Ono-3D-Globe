@@ -36,9 +36,10 @@ var Bezier = {
   "linear":[0,0,1,1],
   "ease-in":[.42,0,1,1],
   "ease-out":[0,0,.58,1],
-  "ease-in-out":[.42,0,.58,1]
+  "ease-in-out":[.42,0,.58,1],
+  "cameraZoom": [0,.59,0,1]
 }
-
+// cubic-bezier(0,.59,0,1)
 function convertGeoCoord(coord, r){
   var lat, lon, xFact, yFact, y, x, z;
   lat = coord.lat;
@@ -64,7 +65,7 @@ hasTarget = false,
 bgMesh, bgGeometry, bgMaterial, earthRotation, skyRotation,
 meshBorders, borderGeo, borderMaterial,
 meshCoord, pointGeo, pointMaterial,
-minRadius, maxRadius;
+minRadius, maxRadius, distantCamera, needZoom = true;
 const CODE_POPIN_OPEN = 1;
 const CODE_LEFT_SIDE = 2;
 const CODE_RIGHT_SIDE = 3;
@@ -72,7 +73,8 @@ const CODE_RIGHT_SIDE = 3;
 //CONFIGURATION
 var POINT_SIZE = 0.08;
 var EARTH_SIZE = 3;
-var DISTANT_CAMERA = 7;
+var DISTANT_CAMERA_NORMAL = 7;
+var INITIAL_DISTANT_CAMERA_NORMAL = 1400;
 var DURATION_MOVE = 1000;
 var TIMING_FUNCTION = "ease-in-out";
 var CAMERA_DECAL = .7;
@@ -84,16 +86,27 @@ skyRotation = true;
 //Initialisation
 scene = new THREE.Scene();
 camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 1, 1000 );
-camera.position.z = DISTANT_CAMERA;
+camera.position.z = INITIAL_DISTANT_CAMERA_NORMAL;
+camera.position.x = 0;
+camera.position.y = 0;
+
 renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
+function calcDistantCamera(){
+  var x, y, z, d;
+  x = camera.position.x;
+  y = camera.position.y;
+  z = camera.position.z;
+  d = Math.sqrt(Math.pow(y, 2)+Math.pow(x, 2)+Math.pow(z, 2));
+  return d;
+}
 
 //Création du controls de la caméra
 controls = new THREE.OrbitControls( camera, renderer.domElement );
 controls.addEventListener( 'change', render ); // remove when using animation loop
-controls.enableZoom = true;
+controls.enableZoom = false;
 
 //Affichage des axes orthonormé
 // axes = buildAxes( 3000 );
@@ -158,8 +171,8 @@ function onDocumentMouseDown( event ) {
   }
 
 
-  if(PopinThree.isDisplay()){
-    PopinThree.hide();
+  if(OnoHystoryPopin.isDisplay()){
+    OnoHystoryPopin.hide();
   }
 }
 document.addEventListener( 'mousemove', onDocumentMouseMove, false );
@@ -181,7 +194,7 @@ function getCameraCoordGeo(){
   var factXCamera = camera.position.z>0 ? -1 : 1;
   var hyp = Math.sqrt(Math.pow(camera.position.x, 2) + Math.pow(camera.position.z, 2));
   var rep = {};
-  rep.lat = toDegre(Math.asin(camera.position.y/DISTANT_CAMERA));
+  rep.lat = toDegre(Math.asin(camera.position.y/DISTANT_CAMERA_NORMAL));
   rep.lon = factXCamera*toDegre(Math.acos(camera.position.x/hyp));
   rep.x = camera.position.x;
   rep.y = camera.position.y;
@@ -239,8 +252,8 @@ function approachTarget(){
     if(t/target.duration>=1){
       hasTarget = false;
       if(onClickPoint === CODE_POPIN_OPEN){
-        PopinThree.updateContent(target.targetCoord.content);
-        PopinThree.display();
+        OnoHystoryPopin.updateContent(target.targetCoord.content);
+        OnoHystoryPopin.display();
       } else {
         recenter.isNeed = true;
         recenter.decal = -1*target.cameraDecal;
@@ -251,7 +264,7 @@ function approachTarget(){
       var tmpCoord = convertGeoCoord({
         lat:avancement*target.distance.lat+target.origin.lat,
         lon:avancement*target.distance.lon+target.origin.lon
-      }, DISTANT_CAMERA);
+      }, DISTANT_CAMERA_NORMAL);
       camera.position.set(tmpCoord[0], tmpCoord[1], tmpCoord[2]);
       camera.lookAt(earthMesh.position);
       if(target.cameraDecal){
@@ -266,7 +279,6 @@ var recenter = {
   approach:function(){
     this.current = new Date().getTime();
     var t = this.current - this.start;
-    // console.log(t);
     avancement = this.ease(t/DURATION_MOVE);
     console.log(avancement);
 
@@ -293,13 +305,32 @@ var recenter = {
   }
 }
 
+var zoomAnim = BezierEasing(Bezier["cameraZoom"][0], Bezier["cameraZoom"][1], Bezier["cameraZoom"][2], Bezier["cameraZoom"][3]);
+var start = null;
+function zoom(){
+  var d = new Date().getTime();
+  var t = zoomAnim((d - start)/4000);
+  var diff = INITIAL_DISTANT_CAMERA_NORMAL - DISTANT_CAMERA_NORMAL;
+  camera.position.z = INITIAL_DISTANT_CAMERA_NORMAL - t*diff;
+  console.log( t);
 
+  if(d-start >= 4000){
+    needZoom = false;
+  }
+}
 
 var render = function () {
     requestAnimationFrame(render);
-
+    // console.log(camera.position);
     if(skyRotation){
       bgMesh.rotation.y -= 0.0002;
+    }
+
+    if(needZoom){
+      if(start===null){
+        start = new Date().getTime();
+      }
+      zoom();
     }
 
     if(!hasTarget || recenter.isMoving){

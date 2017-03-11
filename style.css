@@ -30,6 +30,7 @@ footer, header, hgroup, menu, nav, section {
 }
 body {
 	line-height: 1;
+	overflow: hidden;
 }
 ol, ul {
 	list-style: none;
@@ -131,6 +132,18 @@ table {
 	text-align: center;
 }
 
+.popin .container .center .content span {
+	-webkit-transition: .4s;
+	-o-transition: .4s;
+	transition: .4s;
+}
+.popin .container .center .content span.hide {
+	opacity: 0;
+}
+.popin .container .center .content span.display {
+	opacity: 1;
+}
+
 .popin .container .center .data-visualisation {
 	position: relative;
 	text-align: center;
@@ -140,8 +153,17 @@ table {
 	display: inline-block;
 	width: 30px;
 	height: 30px;
+	-webkit-transition: .5s;
+	-o-transition: .5s;
+	transition: .5s;
+	margin-left: 20px;
 }
-
+.popin .container .center .progress.hide {
+	opacity: 0;
+}
+.popin .container .center .progress.display {
+	opacity: 1;
+}
 circle {
   opacity: 0.1;
 }

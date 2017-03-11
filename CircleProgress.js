@@ -24,7 +24,7 @@ CircleProgress.prototype.setConfig= function(config){
 
 CircleProgress.prototype.gen = function(){
   this.el = document.createElement("div");
-  this.el.className = "progress";
+  this.el.className = "progress hide";
   this.el.setAttribute("style", "width:"+this.style.width+"px; height:"+this.style.height+"px;");
 
   if(this.displayCount){
@@ -32,7 +32,6 @@ CircleProgress.prototype.gen = function(){
     count.innerHTML = this.base === 100? this.value+"%" : this.value;
     count.className = "countDisplay";
     count.setAttribute("style", "font-size:"+parseInt(this.style.width/4)+"px;");
-    console.log(count.style);
     this.el.appendChild(count);
   }
 
@@ -86,16 +85,19 @@ CircleProgress.prototype.appendIn = function(elDom){
 }
 
 CircleProgress.prototype.active = function(){
+  var self = this;
   if(this.value){
-    if(this.animStrokeBack){
-      var self = this;
-      self.setpercentage(this.base, this.circleStrock);
-      setTimeout(function(){
+    this.el.className = this.el.className.replace("hide", "display");
+    setTimeout(function(){
+      if(self.animStrokeBack){
+        self.setpercentage(self.base, self.circleStrock);
+        setTimeout(function(){
+          self.setpercentage(self.value, self.circleProgress);
+        }, 200);
+      } else {
         self.setpercentage(self.value, self.circleProgress);
-      }, 200);
-    } else {
-      this.setpercentage(this.value, this.circleProgress);
-    }
+      }
+    }, 500);
   }
 }
 
