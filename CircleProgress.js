@@ -1,7 +1,7 @@
 
 function CircleProgress(value, config){
   this.value = value;
-  this.content = content;
+  this.content = config.content;
   this.style = {};
   this.setConfig(config);
   this.gen();

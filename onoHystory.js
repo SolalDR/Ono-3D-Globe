@@ -82,7 +82,6 @@ OnoHystoryPopin = {
     this.els.content = this.el.getElementsByClassName("content")[0];
     this.els.dataContainer = this.el.getElementsByClassName("data-visualisation")[0];
     this.els.datas= [];
-
     var size = (window.innerWidth > window.innerHeight ? window.innerWidth : window.innerHeight)*2;
     this.el.style.height = size+"px";
     this.el.style.width = size+"px";
@@ -90,7 +89,64 @@ OnoHystoryPopin = {
   }
 }
 
-OnoHystoryPopin.init();
+
+OnoHystoryLoader = {
+  factPerSecond : [
+    {
+      count : 116666,
+      lib : "snaps envoyés sur Snapchat"
+    },
+    {
+      count : 6.66,
+      lib : "heures de vidéos téléchargées sur YouTube"
+    },
+    {
+      count : 5833,
+      lib : "tweets sur Twitter"
+    },
+    {
+      count : 3.6,
+      lib : "millions de photos aimées sur Facebook"
+    },
+    {
+      count : 1833,
+      lib : "appels sur Skype"
+    },
+    {
+      count : 58333,
+      lib : "textos envoyés aux états-unis"
+    },
+
+  ],
+  loadCallBack : function(){
+    this.el.className = this.el.className.replace("visible", "hidden");
+    var self = this;
+    console.log("Bonjour");
+    self.fact.stop();
+    setTimeout(function(){
+      self.el.style.display = "none";
+    }, 1000);
+
+  },
+  init:function(){
+    var random = this.factPerSecond[Math.floor(this.factPerSecond.length*Math.random())];
+    this.el = document.getElementById("loader");
+    this.fact = new FactProgress({
+      lib : random.lib,
+      interval : 10,
+      factPerSecond : random.count,
+      el : this.el
+    });
+    this.fact.run();
+    this.fact.display();
+    console.log("Display");
+
+  }
+}
+OnoHystoryLoader.init();
+
+
+
 
 
 function DynamicSpell(config){

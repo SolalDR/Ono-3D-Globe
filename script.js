@@ -371,6 +371,13 @@ var render = function () {
     renderer.render(scene, camera);
 };
 
-render();
+
+window.onload = function(){
+  setTimeout(function(){
+    OnoHystoryPopin.init();
+    render();
+    OnoHystoryLoader.loadCallBack();
+  }, 2000)
+}
 
 //https://github.com/mrdoob/three.js/blob/master/examples/webgl_interactive_points.html

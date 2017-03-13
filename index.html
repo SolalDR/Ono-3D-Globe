@@ -4,8 +4,17 @@
     <meta charset="utf-8">
     <title>UX Experience</title>
     <link rel="stylesheet" href="style.css">
+    <script src="FactProgress.js" type="text/javascript"></script>
   </head>
   <body>
+    <div id="loader" class="visible">
+      <div class="container">
+        <p class="little">Pendant votre chargement...</p>
+        <p class="count"></p>
+        <p class="lib"></p>
+      </div>
+    </div>
+
     <div id="onoStoriesPopin" class="popin hidden">
       <div class="container">
         <div class="center">
@@ -16,10 +25,10 @@
         </div>
       </div>
     </div>
+    <script src="onoHystory.js" type="text/javascript"></script>
     <script src="lib/three.js-master/build/three.min.js"></script>
     <script src="lib/three.js-master/examples/js/controls/OrbitControls.js"></script>
     <script src="BezierEasing.js" type="text/javascript"></script>
-    <script src="onoHystory.js" type="text/javascript"></script>
     <script>
     var coord = [
       {
