@@ -75,7 +75,7 @@ var POINT_SIZE = 0.08;
 var EARTH_SIZE = 3;
 var DISTANT_CAMERA_NORMAL = 7;
 var INITIAL_DISTANT_CAMERA_NORMAL = 1400;
-var DURATION_MOVE = 1000;
+var DURATION_MOVE = 2000;
 var TIMING_FUNCTION = "ease-in-out";
 var CAMERA_DECAL = .7;
 var onClickPoint = CODE_POPIN_OPEN;
@@ -169,12 +169,16 @@ function onDocumentMouseDown( event ) {
   } else if ( intersects.length > 0) {
     moveTo(coord[intersects[0].object.rank], DURATION_MOVE, TIMING_FUNCTION, intersects[0].object.rank);
   }
-
-
   if(OnoHystoryPopin.isDisplay()){
     OnoHystoryPopin.hide();
   }
 }
+function onWindowResize(){
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+}
+window.addEventListener( 'resize', onWindowResize, false );
 document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 
@@ -252,7 +256,6 @@ function approachTarget(){
     if(t/target.duration>=1){
       hasTarget = false;
       if(onClickPoint === CODE_POPIN_OPEN){
-        OnoHystoryPopin.updateContent(target.targetCoord.content);
         OnoHystoryPopin.display();
       } else {
         recenter.isNeed = true;

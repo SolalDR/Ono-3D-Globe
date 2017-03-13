@@ -1,14 +1,21 @@
 OnoHystoryPopin = {
   els:{},
   display:function(){
+    this.updateContent(target.targetCoord.content);
+
     var self = this, baseDuration = 1000;
     self.el.className = self.el.className.replace("hidden", "hidding");
+    //On affiche le pop-in
     setTimeout(function(){
       self.el.className = self.el.className.replace("hidding", "visible");
     }, 50);
+
+    //On lance le text
     setTimeout(function(){
       self.textSpell.run();
+      self.els.title.className = self.els.title.className.replace("hidden", "visible");
     },baseDuration);
+
     setTimeout(function(){
       self.displayData();
     },baseDuration+this.textSpell.duration);
@@ -31,6 +38,7 @@ OnoHystoryPopin = {
     self.el.className = self.el.className.replace("visible", "hidding");
     setTimeout(function(){
       self.el.className = self.el.className.replace("hidding", "hidden");
+      self.els.title.className = self.els.title.className.replace("visible", "hidden");
     }, 1200)
   },
   isDisplay:function(){
@@ -92,7 +100,6 @@ function DynamicSpell(config){
     this.textSplit = this.el.innerHTML.split(this.pas);
     this.el.innerHTML = "";
     for(i=0; i<this.textSplit.length; i++){
-      // this.textSplit = "<span class=\"hide\">"+this.textSplit[i]+" </span>";
       this.el.innerHTML += "<span class=\"hide\">"+this.textSplit[i]+" </span>";
     }
     this.textSplit = this.el.getElementsByTagName("span");

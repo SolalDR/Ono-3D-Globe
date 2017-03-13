@@ -111,7 +111,10 @@ table {
 	color: white;
 	position: relative;
 	top: 50%;
-	transform: translateY(-60%);
+	-webkit-transform: translateY(-50%);
+	-ms-transform: translateY(-50%);
+	-o-transform: translateY(-50%);
+	transform: translateY(-50%);
 	font-family: "Roboto";
 	font-weight: 100;
 }
@@ -123,6 +126,14 @@ table {
 	text-align: center;
 }
 
+.popin .container .center .title.visible{
+	opacity: 1;
+}
+.popin .container .center .title.hidden{
+	opacity: 0;
+}
+
+
 .popin .container .center .sound {
 	height: 0;
 }
@@ -130,12 +141,17 @@ table {
 .popin .container .center .content {
 	margin: 20px 0;
 	text-align: center;
+	font-weight: 100;
+	font-size: .9em;
+	opacity: .7;
+	line-height: 1.3em;
 }
 
 .popin .container .center .content span {
 	-webkit-transition: .4s;
 	-o-transition: .4s;
 	transition: .4s;
+	/*font-size: 38px;*/
 }
 .popin .container .center .content span.hide {
 	opacity: 0;
