@@ -182,6 +182,15 @@ table {
 .popin .container .center .progress.display {
 	opacity: 1;
 }
+
+#soundCanvas {
+	opacity: 0.7;
+	position: absolute;
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
 circle {
   opacity: 0.1;
 }

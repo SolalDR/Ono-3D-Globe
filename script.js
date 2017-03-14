@@ -171,6 +171,7 @@ function onDocumentMouseDown( event ) {
   }
   if(OnoHystoryPopin.isDisplay()){
     OnoHystoryPopin.hide();
+    soundVoice.stop();
   }
 }
 function onWindowResize(){
@@ -246,6 +247,7 @@ function moveTo(coord, duration, animation, rank){
 
 }
 
+
 //Si une direction est établie, on s'en rapproche
 function approachTarget(){
   if(hasTarget != false){
@@ -257,6 +259,7 @@ function approachTarget(){
       hasTarget = false;
       if(onClickPoint === CODE_POPIN_OPEN){
         OnoHystoryPopin.display();
+        soundVoice.play();
       } else {
         recenter.isNeed = true;
         recenter.decal = -1*target.cameraDecal;
@@ -315,14 +318,86 @@ function zoom(){
   var t = zoomAnim((d - start)/4000);
   var diff = INITIAL_DISTANT_CAMERA_NORMAL - DISTANT_CAMERA_NORMAL;
   camera.position.z = INITIAL_DISTANT_CAMERA_NORMAL - t*diff;
-  console.log( t);
 
   if(d-start >= 4000){
     needZoom = false;
   }
 }
 
+//Create an AudioListener and add it to the camera
+var listener = new THREE.AudioListener();
+camera.add( listener );
+
+// create an Audio source
+var soundBg = new THREE.Audio( listener );
+var audioBg = new THREE.AudioLoader();
+
+
+//Load a soundBg and set it as the Audio object's buffer
+audioBg.load( 'assets/ambient.wav', function( buffer ) {
+	soundBg.setBuffer( buffer );
+	soundBg.setLoop(true);
+	soundBg.setVolume(0.2);
+	soundBg.play();
+});
+
+//load the testymony
+var soundVoice = new THREE.Audio( listener );
+var audioVoice = new THREE.AudioLoader();
+
+audioVoice.load( 'assets/julien.wav', function( buffer ) {
+	soundVoice.setBuffer( buffer );
+	soundVoice.setLoop(false);
+	soundVoice.setVolume(3);
+
+});
+
+
+soundVoice.onEnded = function() {
+  soundVoice.stop();
+  analyser.fftSize = 0
+
+}
+//Create an AudioAnalyser, passing in the soundBg and desired fftSize
+var analyser = new THREE.AudioAnalyser( soundVoice, 128 );
+//Get the average frequency of the sound
+function initSoundAnalyse() {
+  var canvas = document.getElementById("soundCanvas");
+  canvas.style.opacity = 0.7;
+  var dataLine = canvas.getContext("2d");
+  var time = 0;
+  var color = "#ffffff";
+  var factor;
+  setInterval(function(){
+    time = time + 0.1
+    dataLine.clearRect(0, 0, canvas.width, canvas.height);
+    dataLine.beginPath();
+    if(soundVoice.isPlaying) {
+      factor = (analyser.getAverageFrequency()-7)
+    } else {
+      factor = 0;
+    }
+    for(cnt = -1; cnt <= canvas.width; cnt++) {
+      dataLine.lineTo(cnt, canvas.height * 0.5 - (2 + Math.cos(time + cnt * 0.05) *factor  ));
+    }
+    dataLine.lineWidth = 1;
+    dataLine.strokeStyle = color;
+    dataLine.stroke();
+
+    dataLine.beginPath();
+    for(cnt = -1; cnt <= canvas.width; cnt++) {
+      dataLine.lineTo(cnt, canvas.height * 0.5 - (2 + Math.cos(time + cnt * 0.05) * factor*0.8));
+    }
+    dataLine.lineWidth = 1;
+    dataLine.strokeStyle = color;
+    dataLine.stroke();
+
+  }, 10);
+}
+initSoundAnalyse();
+
 var render = function () {
+  console.log();
     requestAnimationFrame(render);
     // console.log(camera.position);
     if(skyRotation){
