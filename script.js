@@ -345,11 +345,10 @@ audioBg.load( 'assets/audio/ambient.wav', function( buffer ) {
 var soundVoice = new THREE.Audio( listener );
 var audioVoice = new THREE.AudioLoader();
 
-audioVoice.load( 'assets/audio/julien.wav', function( buffer ) {
+audioVoice.load( 'assets/audio/interculturelle.wav', function( buffer ) {
 	soundVoice.setBuffer( buffer );
 	soundVoice.setLoop(false);
 	soundVoice.setVolume(3);
-
 });
 
 
