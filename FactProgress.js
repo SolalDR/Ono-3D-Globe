@@ -8,7 +8,6 @@ function FactProgress(config){
 }
 
 FactProgress.prototype.run = function(){
-  console.log(this.elLib);
   var self = this;
   this.start = new Date().getTime();
   self.value = 0;

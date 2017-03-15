@@ -145,7 +145,7 @@ for(i=0; i<coord.length; i++){
   meshBorders[i].rank = i;
   earthMesh.add(meshBorders[i]);
 }
-earthMesh.add(axes);
+// earthMesh.add(axes);
 
 //Gestion des évenements
 raycaster = new THREE.Raycaster();
@@ -383,7 +383,7 @@ function initSoundAnalyse() {
       nextFactor = cnt<=midWidth ? cnt/midWidth : 1-(cnt-midWidth)/midWidth;
       dataLine.lineTo(cnt, canvas.height * 0.5 - (2 + Math.cos(time + cnt * 0.05) *(factor*nextFactor*0.7)));
     }
-    dataLine.lineWidth = 1;
+    dataLine.lineWidth = 2-1/(analyser.getAverageFrequency()/3);
     dataLine.strokeStyle = color;
     dataLine.stroke();
 
@@ -392,7 +392,7 @@ function initSoundAnalyse() {
       nextFactor = cnt<=midWidth ? cnt/midWidth : 1-(cnt-midWidth)/midWidth;
       dataLine.lineTo(cnt, canvas.height * 0.5 - (2 + Math.cos(time + cnt * 0.05) * (factor*nextFactor*0.6)));
     }
-    dataLine.lineWidth = 1;
+    dataLine.lineWidth = 1*(2-1/analyser.getAverageFrequency());
     dataLine.strokeStyle = color;
     dataLine.stroke();
 

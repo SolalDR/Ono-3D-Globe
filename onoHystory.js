@@ -121,7 +121,6 @@ OnoHystoryLoader = {
   loadCallBack : function(){
     this.el.className = this.el.className.replace("visible", "hidden");
     var self = this;
-    console.log("Bonjour");
     self.fact.stop();
     setTimeout(function(){
       self.el.style.display = "none";
@@ -139,8 +138,6 @@ OnoHystoryLoader = {
     });
     this.fact.run();
     this.fact.display();
-    console.log("Display");
-
   }
 }
 OnoHystoryLoader.init();
