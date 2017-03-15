@@ -1,7 +1,7 @@
 OnoHystoryPopin = {
   els:{},
-  display:function(duration){
-    this.updateContent(target.targetCoord.content, duration);
+  display:function(){
+    this.updateContent(target.targetCoord.content);
 
     var self = this, baseDuration = 1000;
     self.el.className = self.el.className.replace("hidden", "hidding");
@@ -52,16 +52,27 @@ OnoHystoryPopin = {
       self.el.style.width = size+"px";
     }
   },
-  updateContent:function(content, duration){
+  updateContent:function(content){
     this.els.dataContainer.innerHTML = "";
     this.els.data = [];
     this.els.title.innerHTML = content.name;
     this.els.content.innerHTML = content.text;
-    this.textSpell = new DynamicSpell({
-      el: this.els.content,
-      pas: /\s/,
-      duration: duration*1000
-    });
+    console.log(content.voice);
+    if(content.voice){
+      this.textSpell = new DynamicSpell({
+        el: this.els.content,
+        pas: /\s/,
+        duration: content.voice.duration*1000,
+        keys: content.voice.keyValues
+      });
+    } else {
+      this.textSpell = new DynamicSpell({
+        el: this.els.content,
+        pas: /\s/,
+        duration: 2000
+      });
+    }
+
 
     for(i=0; i<content.data.length; i++){
       this.els.data.push(new CircleProgress(content.data[i].count, {
@@ -152,6 +163,8 @@ function DynamicSpell(config){
     this.pas = config.pas ? config.pas : "\s";
     this.textSplit = this.el.innerHTML.split(this.pas);
     this.el.innerHTML = "";
+    this.keys = config.keys ? config.keys : null;
+    console.log(this.keys, config.keys);
     for(i=0; i<this.textSplit.length; i++){
       this.el.innerHTML += "<span class=\"hide\">"+this.textSplit[i]+" </span>";
     }
@@ -160,15 +173,41 @@ function DynamicSpell(config){
   }
 }
 
+DynamicSpell.prototype.startInterval = function(interval){
+  var self = this;
+  if(this.interval){
+    clearInterval(this.interval);
+  }
+  this.interval = setInterval(function(){
+    self.textSplit[self.rank].className = self.textSplit[self.rank].className.replace("hide", "display");
+    self.rank++;
+
+    console.log(self.currentKey, self.keys);
+    //Si des clés existe et qu'on a atteint la limite de cette clé (Le nombre de mot final de la clé est égale au nombre de mots actuellement traité)
+    if(self.currentKey>=0 && self.keys[self.currentKey][1]==self.rank){
+      self.currentKey++
+      //Si la clé calculé n'existe pas, on calcule par rapport à la fin de la vidéo
+      if(self.currentKey == self.keys.length){
+        self.startInterval(parseInt(( self.duration - self.keys[self.currentKey-1][0] )/( self.textSplit.length - self.keys[self.currentKey-1][1] )));
+      } else {
+        // Sinon on calcule par rapport à la clé précédente
+        self.startInterval(parseInt(( self.keys[self.currentKey][0] - self.keys[self.currentKey-1][0] )/( self.keys[self.currentKey][1] - self.keys[self.currentKey-1][1] )));
+      }
+    }
+    if(self.rank === self.textSplit.length){
+      clearInterval(self.interval);
+    }
+  }, interval)
+}
+
 DynamicSpell.prototype.run = function(){
   this.start = new Date().getTime();
   var self = this;
-  var rank = 0;
-  this.interval = setInterval(function(){
-    self.textSplit[rank].className = self.textSplit[rank].className.replace("hide", "display");
-    rank++;
-    if(rank === self.textSplit.length){
-      clearInterval(self.interval);
-    }
-  }, parseInt(this.duration/this.textSplit.length))
+  this.rank = 0;
+  if(this.keys){
+    this.currentKey = 0;
+    this.startInterval(parseInt(this.keys[this.currentKey][0]/this.keys[this.currentKey][1]));
+  } else {
+    this.startInterval(parseInt(this.duration/this.textSplit.length));
+  }
 }

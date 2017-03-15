@@ -258,7 +258,7 @@ function approachTarget(){
     if(t/target.duration>=1){
       hasTarget = false;
       if(onClickPoint === CODE_POPIN_OPEN){
-        OnoHystoryPopin.display(soundVoice.buffer.duration);
+        OnoHystoryPopin.display();
         soundVoice.play();
         console.log(soundVoice.buffer.duration);
       } else {
