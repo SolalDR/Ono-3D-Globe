@@ -1,7 +1,7 @@
 OnoHystoryPopin = {
   els:{},
-  display:function(){
-    this.updateContent(target.targetCoord.content);
+  display:function(duration){
+    this.updateContent(target.targetCoord.content, duration);
 
     var self = this, baseDuration = 1000;
     self.el.className = self.el.className.replace("hidden", "hidding");
@@ -52,7 +52,7 @@ OnoHystoryPopin = {
       self.el.style.width = size+"px";
     }
   },
-  updateContent:function(content){
+  updateContent:function(content, duration){
     this.els.dataContainer.innerHTML = "";
     this.els.data = [];
     this.els.title.innerHTML = content.name;
@@ -60,7 +60,7 @@ OnoHystoryPopin = {
     this.textSpell = new DynamicSpell({
       el: this.els.content,
       pas: /\s/,
-      duration: 2000
+      duration: duration*1000
     });
 
     for(i=0; i<content.data.length; i++){
