@@ -122,8 +122,8 @@ scene.add(spotLight);
 //Création de la terre
 earthGeo   = new THREE.SphereGeometry(EARTH_SIZE, 32, 32);
 earthMaterial  = new THREE.MeshPhongMaterial({
-  map: THREE.ImageUtils.loadTexture('assets/earthnight.jpg'),
-  specularMap: THREE.ImageUtils.loadTexture('assets/earthspec1k.jpg'),
+  map: THREE.ImageUtils.loadTexture('assets/pictures/earthnight.jpg'),
+  specularMap: THREE.ImageUtils.loadTexture('assets/pictures/earthspec1k.jpg'),
   specular: new THREE.Color('black')
 });
 earthMesh = new THREE.Mesh(earthGeo, earthMaterial);
@@ -187,7 +187,7 @@ document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 //Gestion du fond étoilé
 bgGeometry  = new THREE.SphereGeometry(50, 32, 32);
 bgMaterial  = new THREE.MeshBasicMaterial({
-  map: THREE.ImageUtils.loadTexture('assets/starfield.png'),
+  map: THREE.ImageUtils.loadTexture('assets/pictures/starfield.png'),
   side: THREE.BackSide
 });
 bgMesh  = new THREE.Mesh(bgGeometry, bgMaterial);
@@ -334,7 +334,7 @@ var audioBg = new THREE.AudioLoader();
 
 
 //Load a soundBg and set it as the Audio object's buffer
-audioBg.load( 'assets/ambient.wav', function( buffer ) {
+audioBg.load( 'assets/audio/ambient.wav', function( buffer ) {
 	soundBg.setBuffer( buffer );
 	soundBg.setLoop(true);
 	soundBg.setVolume(0.2);
@@ -345,7 +345,7 @@ audioBg.load( 'assets/ambient.wav', function( buffer ) {
 var soundVoice = new THREE.Audio( listener );
 var audioVoice = new THREE.AudioLoader();
 
-audioVoice.load( 'assets/julien.wav', function( buffer ) {
+audioVoice.load( 'assets/audio/julien.wav', function( buffer ) {
 	soundVoice.setBuffer( buffer );
 	soundVoice.setLoop(false);
 	soundVoice.setVolume(3);
