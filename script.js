@@ -377,8 +377,11 @@ function initSoundAnalyse() {
     } else {
       factor = 0;
     }
-    for(cnt = -1; cnt <= canvas.width; cnt++) {
-      dataLine.lineTo(cnt, canvas.height * 0.5 - (2 + Math.cos(time + cnt * 0.05) *factor  ));
+    var nextFactor;
+    var midWidth = Math.floor(canvas.width/2);
+    for(cnt = 0; cnt <= canvas.width; cnt++) {
+      nextFactor = cnt<=midWidth ? cnt/midWidth : 1-(cnt-midWidth)/midWidth;
+      dataLine.lineTo(cnt, canvas.height * 0.5 - (2 + Math.cos(time + cnt * 0.05) *(factor*nextFactor*0.7)));
     }
     dataLine.lineWidth = 1;
     dataLine.strokeStyle = color;
@@ -386,7 +389,8 @@ function initSoundAnalyse() {
 
     dataLine.beginPath();
     for(cnt = -1; cnt <= canvas.width; cnt++) {
-      dataLine.lineTo(cnt, canvas.height * 0.5 - (2 + Math.cos(time + cnt * 0.05) * factor*0.8));
+      nextFactor = cnt<=midWidth ? cnt/midWidth : 1-(cnt-midWidth)/midWidth;
+      dataLine.lineTo(cnt, canvas.height * 0.5 - (2 + Math.cos(time + cnt * 0.05) * (factor*nextFactor*0.6)));
     }
     dataLine.lineWidth = 1;
     dataLine.strokeStyle = color;
@@ -394,6 +398,7 @@ function initSoundAnalyse() {
 
   }, 10);
 }
+
 initSoundAnalyse();
 
 var render = function () {
