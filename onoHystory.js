@@ -126,8 +126,7 @@ OnoHystoryLoader = {
     {
       count : 58333,
       lib : "textos envoyés aux états-unis"
-    },
-
+    }
   ],
   loadCallBack : function(){
     this.el.className = this.el.className.replace("visible", "hidden");

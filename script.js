@@ -259,8 +259,9 @@ function approachTarget(){
       hasTarget = false;
       if(onClickPoint === CODE_POPIN_OPEN){
         OnoHystoryPopin.display();
-        soundVoice.play();
-        console.log(soundVoice.buffer.duration);
+        setTimeout(function(){
+          soundVoice.play();
+        }, 400)
       } else {
         recenter.isNeed = true;
         recenter.decal = -1*target.cameraDecal;
