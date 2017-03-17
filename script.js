@@ -151,7 +151,7 @@ scene.add(containerLight);
 
 function genLight(){
   for(i=0; i<50; i++){
-    var geoEarthLight = new THREE.SphereGeometry(EARTH_SIZE+i*0.01, 32, 32);
+    var geoEarthLight = new THREE.SphereGeometry(EARTH_SIZE+i*0.02, 32, 32);
     earthsLight.push(new THREE.Mesh( geoEarthLight, new THREE.MeshLambertMaterial({
       map: textures.earthlight,
       transparent: true,
@@ -167,10 +167,12 @@ function switchOn(){
       var rank = i;
       setTimeout(function(){
         earthsLight[rank].material.opacity = 1;
-      }, 40*rank)
+      }, 100*rank)
     })();
   }
 }
+
+
 
 function switchOff(){
   for(i=0; i<earthsLight.length; i++){
@@ -223,6 +225,7 @@ function onDocumentMouseDown( event ) {
     moveTo(coord[intersects[0].object.rank], DURATION_MOVE, TIMING_FUNCTION, intersects[0].object.rank);
   }
   if(OnoHystoryPopin.isDisplay()){
+    switchOff();
     OnoHystoryPopin.hide();
     soundVoice.stop();
   }
@@ -313,6 +316,7 @@ function approachTarget(){
       if(onClickPoint === CODE_POPIN_OPEN){
         OnoHystoryPopin.display();
         setTimeout(function(){
+          switchOn();
           soundVoice.play();
         }, 400)
       } else {
