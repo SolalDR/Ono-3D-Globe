@@ -119,16 +119,69 @@ scene.add( light );
 var spotLight = new THREE.PointLight( 0xffffff, 0);
 scene.add(spotLight);
 
+
+
+textures = {
+  earthnight : THREE.ImageUtils.loadTexture('assets/pictures/earthnight.jpg'),
+  earthspec : THREE.ImageUtils.loadTexture('assets/pictures/earthspec1k.jpg'),
+  earthlight : THREE.ImageUtils.loadTexture('assets/pictures/lightWhite.png')
+}
+
+
 //Création de la terre
 earthGeo   = new THREE.SphereGeometry(EARTH_SIZE, 32, 32);
 earthMaterial  = new THREE.MeshPhongMaterial({
-  map: THREE.ImageUtils.loadTexture('assets/pictures/earthnight.jpg'),
-  specularMap: THREE.ImageUtils.loadTexture('assets/pictures/earthspec1k.jpg'),
+  map: textures.earthnight,
+  specularMap: textures.earthspec,
   specular: new THREE.Color('black')
 });
 earthMesh = new THREE.Mesh(earthGeo, earthMaterial);
 scene.add(earthMesh);
 camera.lookAt(earthMesh.position)
+
+var earthsLight = [];
+var earthMaterialLight;
+var noMaterial = new THREE.MeshLambertMaterial({
+  transparent: true,
+  opacity : 0
+});
+var containerLight = new THREE.Object3D();
+scene.add(containerLight);
+
+
+function genLight(){
+  for(i=0; i<50; i++){
+    var geoEarthLight = new THREE.SphereGeometry(EARTH_SIZE+i*0.01, 32, 32);
+    earthsLight.push(new THREE.Mesh( geoEarthLight, new THREE.MeshLambertMaterial({
+      map: textures.earthlight,
+      transparent: true,
+      opacity: 0
+    })));
+    containerLight.add(earthsLight[i]);
+  }
+}
+
+function switchOn(){
+  for(i=0; i<earthsLight.length; i++){
+    (function(){
+      var rank = i;
+      setTimeout(function(){
+        earthsLight[rank].material.opacity = 1;
+      }, 40*rank)
+    })();
+  }
+}
+
+function switchOff(){
+  for(i=0; i<earthsLight.length; i++){
+    (function(){
+      var rank = i;
+      setTimeout(function(){
+        earthsLight[rank].material.opacity = 0;
+      }, 40*rank)
+    })();
+  }
+}
 
 //Affichage des points
 meshBorders = [];
@@ -403,7 +456,6 @@ function initSoundAnalyse() {
 initSoundAnalyse();
 
 var render = function () {
-  console.log();
     requestAnimationFrame(render);
     // console.log(camera.position);
     if(skyRotation){
@@ -456,6 +508,7 @@ var render = function () {
 window.onload = function(){
   setTimeout(function(){
     OnoHystoryPopin.init();
+    genLight();
     render();
     OnoHystoryLoader.loadCallBack();
   }, 2000)
