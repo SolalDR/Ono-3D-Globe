@@ -107,6 +107,7 @@ function calcDistantCamera(){
 controls = new THREE.OrbitControls( camera, renderer.domElement );
 controls.addEventListener( 'change', render ); // remove when using animation loop
 controls.enableZoom = false;
+controls.enabled = false;
 
 //Affichage des axes orthonormé
 // axes = buildAxes( 3000 );
@@ -124,7 +125,8 @@ scene.add(spotLight);
 textures = {
   earthnight : THREE.ImageUtils.loadTexture('assets/pictures/earthnight.jpg'),
   earthspec : THREE.ImageUtils.loadTexture('assets/pictures/earthspec1k.jpg'),
-  earthlight : THREE.ImageUtils.loadTexture('assets/pictures/lightWhite.png')
+  earthlight : THREE.ImageUtils.loadTexture('assets/pictures/lightWhite.png'),
+  starfield : THREE.ImageUtils.loadTexture('assets/pictures/starfield.png')
 }
 
 
@@ -161,29 +163,41 @@ function genLight(){
   }
 }
 
-function switchOn(){
+function switchOn(interval){
   for(i=0; i<earthsLight.length; i++){
     (function(){
       var rank = i;
       setTimeout(function(){
         earthsLight[rank].material.opacity = 1;
-      }, 100*rank)
+      }, interval*rank)
     })();
   }
 }
 
-
-
-function switchOff(){
+function switchOff(interval){
   for(i=0; i<earthsLight.length; i++){
     (function(){
       var rank = i;
       setTimeout(function(){
         earthsLight[rank].material.opacity = 0;
-      }, 40*rank)
+      }, interval*rank)
     })();
   }
 }
+
+var alternateLight;
+function alternSwitch(){
+  var isOn = false;
+  alternateLight = setInterval(function(){
+    if(isOn){
+      switchOff(100);
+    } else {
+      switchOn(100);
+    }
+    isOn = isOn ? false : true;
+  }, 100*earthsLight.length-1000)
+}
+
 
 //Affichage des points
 meshBorders = [];
@@ -225,7 +239,8 @@ function onDocumentMouseDown( event ) {
     moveTo(coord[intersects[0].object.rank], DURATION_MOVE, TIMING_FUNCTION, intersects[0].object.rank);
   }
   if(OnoHystoryPopin.isDisplay()){
-    switchOff();
+    switchOff(30);
+    clearInterval(alternateLight);
     OnoHystoryPopin.hide();
     soundVoice.stop();
   }
@@ -243,7 +258,7 @@ document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 //Gestion du fond étoilé
 bgGeometry  = new THREE.SphereGeometry(50, 32, 32);
 bgMaterial  = new THREE.MeshBasicMaterial({
-  map: THREE.ImageUtils.loadTexture('assets/pictures/starfield.png'),
+  map: textures.starfield,
   side: THREE.BackSide
 });
 bgMesh  = new THREE.Mesh(bgGeometry, bgMaterial);
@@ -316,7 +331,7 @@ function approachTarget(){
       if(onClickPoint === CODE_POPIN_OPEN){
         OnoHystoryPopin.display();
         setTimeout(function(){
-          switchOn();
+          alternSwitch();
           soundVoice.play();
         }, 400)
       } else {
@@ -379,6 +394,7 @@ function zoom(){
   camera.position.z = INITIAL_DISTANT_CAMERA_NORMAL - t*diff;
 
   if(d-start >= 4000){
+    controls.enabled = true;
     needZoom = false;
   }
 }
