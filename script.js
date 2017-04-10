@@ -57,7 +57,7 @@ function convertGeoCoord(coord, r){
 }
 
 
-var scene, camera, renderer,
+var scene, camera, renderer, textureLoader,
 controls, light, axes,
 earthGeo, earthMaterial, earthMesh,
 raycaster, intersects, mouse, activeMesh,
@@ -86,11 +86,11 @@ skyRotation = true;
 //Initialisation
 scene = new THREE.Scene();
 camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 1, 1000 );
+textureLoader = new THREE.TextureLoader();
 camera.position.z = INITIAL_DISTANT_CAMERA_NORMAL;
 camera.position.x = 0;
 camera.position.y = 0;
-
-renderer = new THREE.WebGLRenderer();
+renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
@@ -123,10 +123,10 @@ scene.add(spotLight);
 
 
 textures = {
-  earthnight : THREE.ImageUtils.loadTexture('assets/pictures/earthnight.jpg'),
-  earthspec : THREE.ImageUtils.loadTexture('assets/pictures/earthspec1k.jpg'),
-  earthlight : THREE.ImageUtils.loadTexture('assets/pictures/lightWhite.png'),
-  starfield : THREE.ImageUtils.loadTexture('assets/pictures/starfield.png')
+  earthnight : textureLoader.load('assets/pictures/earthnight.jpg'),
+  earthspec : textureLoader.load('assets/pictures/earthspec1k.jpg'),
+  earthlight : textureLoader.load('assets/pictures/lightWhite.png'),
+  starfield : textureLoader.load('assets/pictures/starfield.png')
 }
 
 
@@ -408,6 +408,24 @@ var soundBg = new THREE.Audio( listener );
 var audioBg = new THREE.AudioLoader();
 
 
+
+//Sun with lenphare 
+// addLight( 0.55, 0.9, 0.5, 0, 0, -15 );
+var textureFlare = textureLoader.load( "lib/three.js-master/examples/textures/lensflare2.jpg" );
+
+function addLight( h, s, l, x, y, z ) {
+  var light = new THREE.PointLight( 0xffffff, 1.5, 2000 );
+  light.color.setHSL( h, s, l );
+  light.position.set( x, y, z );
+  scene.add( light );
+  var flareColor = new THREE.Color( 0xffffff );
+  flareColor.setHSL( h, s, l + 0.5 );
+  var lensFlare = new THREE.LensFlare( textureFlare, 400, 0.0, THREE.AdditiveBlending, flareColor );
+
+  lensFlare.position.copy( light.position );
+  scene.add( lensFlare );
+}
+
 //Load a soundBg and set it as the Audio object's buffer
 audioBg.load( 'assets/audio/ambient.wav', function( buffer ) {
 	soundBg.setBuffer( buffer );
@@ -415,6 +433,7 @@ audioBg.load( 'assets/audio/ambient.wav', function( buffer ) {
 	soundBg.setVolume(0.2);
 	soundBg.play();
 });
+
 
 //load the testymony
 var soundVoice = new THREE.Audio( listener );
