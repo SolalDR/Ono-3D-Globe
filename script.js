@@ -56,6 +56,15 @@ function convertGeoCoord(coord, r){
   return [x, y, z];
 }
 
+//d888888b  d8b   db  d888888b  d888888b  d888888b    .d8b.    db        d888888b   .d8888.   .d8b.   d888888b  d888888b   .d88b.    d8b   db
+//  `88'    888o  88    `88'    `~~88~~'    `88'     d8' `8b   88          `88'     88'  YP  d8' `8b  `~~88~~'    `88'    .8P  Y8.   888o  88
+//   88     88V8o 88     88        88        88      88ooo88   88           88      `8bo.    88ooo88     88        88     88    88   88V8o 88
+//   88     88 V8o88     88        88        88      88~~~88   88           88        `Y8b.  88~~~88     88        88     88    88   88 V8o88
+//  .88.    88  V888    .88.       88       .88.     88   88   88booo.     .88.     db   8D  88   88     88       .88.    `8b  d8'   88  V888
+//Y888888P  VP   V8P  Y888888P     YP     Y888888P   YP   YP   Y88888P   Y888888P   `8888Y'  YP   YP     YP     Y888888P   `Y88P'    VP   V8P
+
+
+
 
 var scene, camera, renderer, textureLoader,
 controls, light, axes,
@@ -78,6 +87,7 @@ var INITIAL_DISTANT_CAMERA_NORMAL = 1400;
 var DURATION_MOVE = 2000;
 var TIMING_FUNCTION = "ease-in-out";
 var CAMERA_DECAL = .7;
+var SUN_DISPLAY = true;
 var onClickPoint = CODE_POPIN_OPEN;
 earthRotation = false;
 skyRotation = true;
@@ -85,14 +95,35 @@ skyRotation = true;
 
 //Initialisation
 scene = new THREE.Scene();
-camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 1, 1000 );
 textureLoader = new THREE.TextureLoader();
-camera.position.z = INITIAL_DISTANT_CAMERA_NORMAL;
-camera.position.x = 0;
-camera.position.y = 0;
 renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
+
+
+// axes = buildAxes( 3000 );
+
+// .o88b.    .d8b.   .88b  d88.   d88888b  d8888b.    .d8b.
+// d8P  Y8  d8' `8b  88'YbdP`88   88'      88  `8D   d8' `8b
+// 8P       88ooo88  88  88  88   88ooooo  88oobY'   88ooo88
+// 8b       88~~~88  88  88  88   88~~~~~  88`8b     88~~~88
+// Y8b  d8  88   88  88  88  88   88.      88 `88.   88   88
+// `Y88P'   YP   YP  YP  YP  YP   Y88888P  88   YD   YP   YP
+
+
+camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 1, 1000 );
+camera.position.z = INITIAL_DISTANT_CAMERA_NORMAL;
+camera.position.x = 0;
+camera.position.y = 0;
+
+
+
+//Création du controls de la caméra
+controls = new THREE.OrbitControls( camera, renderer.domElement );
+controls.addEventListener( 'change', render ); // remove when using animation loop
+controls.enableZoom = false;
+controls.enabled = false;
+
 
 function calcDistantCamera(){
   var x, y, z, d;
@@ -103,14 +134,28 @@ function calcDistantCamera(){
   return d;
 }
 
-//Création du controls de la caméra
-controls = new THREE.OrbitControls( camera, renderer.domElement );
-controls.addEventListener( 'change', render ); // remove when using animation loop
-controls.enableZoom = false;
-controls.enabled = false;
 
-//Affichage des axes orthonormé
-// axes = buildAxes( 3000 );
+function getCameraCoordGeo(){
+  var factYCamera = camera.position.y>0 ? 1 : -1;
+  var factXCamera = camera.position.z>0 ? -1 : 1;
+  var hyp = Math.sqrt(Math.pow(camera.position.x, 2) + Math.pow(camera.position.z, 2));
+  var rep = {};
+  rep.lat = toDegre(Math.asin(camera.position.y/DISTANT_CAMERA_NORMAL));
+  rep.lon = factXCamera*toDegre(Math.acos(camera.position.x/hyp));
+  rep.x = camera.position.x;
+  rep.y = camera.position.y;
+  rep.z = camera.position.z;
+  return rep;
+}
+
+
+// db       db    db  .88b  d88.  d888888b  d88888b  d8888b.   d88888b  .d8888.
+// 88       88    88  88'YbdP`88    `88'    88'      88  `8D   88'      88'  YP
+// 88       88    88  88  88  88     88     88ooooo  88oobY'   88ooooo  `8bo.
+// 88       88    88  88  88  88     88     88~~~~~  88`8b     88~~~~~    `Y8b.
+// 88booo.  88b  d88  88  88  88    .88.    88.      88 `88.   88.      db   8D
+// Y88888P  ~Y8888P'  YP  YP  YP  Y888888P  Y88888P  88   YD   Y88888P  `8888Y'
+
 
 //Lumière ambiente
 light = new THREE.AmbientLight( 0x404040, 6); // soft white light
@@ -119,6 +164,7 @@ scene.add( light );
 //Lumière dirigée
 var spotLight = new THREE.PointLight( 0xffffff, 0);
 scene.add(spotLight);
+
 
 
 
@@ -149,6 +195,37 @@ var noMaterial = new THREE.MeshLambertMaterial({
 });
 var containerLight = new THREE.Object3D();
 scene.add(containerLight);
+
+
+
+//Sun with lenphare
+if(SUN_DISPLAY){
+  addLight( 0.55, 0.9, 0.5, 0, 0, -15 );
+}
+var textureFlare = textureLoader.load( "lib/three.js-master/examples/textures/lensflare2.jpg" );
+
+function addLight( h, s, l, x, y, z ) {
+  var light = new THREE.PointLight( 0xffffff, 1.5, 2000 );
+  light.color.setHSL( h, s, l );
+  light.position.set( x, y, z );
+  scene.add( light );
+  var flareColor = new THREE.Color( 0xffffff );
+  flareColor.setHSL( h, s, l + 0.5 );
+  var lensFlare = new THREE.LensFlare( textureFlare, 400, 0.0, THREE.AdditiveBlending, flareColor );
+
+  lensFlare.position.copy( light.position );
+  scene.add( lensFlare );
+}
+
+
+
+// .o88b.    d888888b   d888888b   db    db      db        d888888b  d888b   db   db   d888888b
+// d8P  Y8     `88'        88       8b  d8       88          `88'   88  Y8b  88   88      88
+// 8P           88         88        8bd8        88           88    88       88ooo88      88
+// 8b           88         88         88         88           88    88  ooo  88   88      88
+// Y8b  d8     .88.        88         88         88booo.     .88.   88. ~8~  88   88      88
+// `Y88P'    Y888888P      YP         YP         Y88888P   Y888888P  Y888P   YP   YP      YP
+
 
 
 function genLight(){
@@ -198,6 +275,14 @@ function alternSwitch(){
   }, 100*earthsLight.length-1000)
 }
 
+// .d8b.    d88888b  d88888b  d888888b    .o88b.   db   db   .d8b.     d888b    d88888b      d8888b.    .d88b.   d888888b  d8b   db   d888888b
+//d8' `8b   88'      88'        `88'     d8P  Y8   88   88  d8' `8b   88' Y8b   88'          88  `8D   .8P  Y8.    `88'    888o  88   `~~88~~'
+//88ooo88   88ooo    88ooo       88      8P        88ooo88  88ooo88   88        88ooooo      88oodD'   88    88     88     88V8o 88      88
+//88~~~88   88~~~    88~~~       88      8b        88~~~88  88~~~88   88  ooo   88~~~~~      88~~~     88    88     88     88 V8o88      88
+//88   88   88       88         .88.     Y8b  d8   88   88  88   88   88. ~8~   88.          88        `8b  d8'    .88.    88  V888      88
+//YP   YP   YP       YP       Y888888P    `Y88P'   YP   YP  YP   YP    Y888P    Y88888P      88         `Y88P'   Y888888P  VP   V8P      YP
+
+
 
 //Affichage des points
 meshBorders = [];
@@ -215,6 +300,16 @@ for(i=0; i<coord.length; i++){
   earthMesh.add(meshBorders[i]);
 }
 // earthMesh.add(axes);
+
+
+// d88888b   db    db   d88888b  d8b   db  d88888b  .88b  d88.   d88888b   d8b   db  d888888b  .d8888.
+// 88'       88    88   88'      888o  88  88'      88'YbdP`88   88'       888o  88  `~~88~~'  88'  YP
+// 88ooooo   Y8    8P   88ooooo  88V8o 88  88ooooo  88  88  88   88ooooo   88V8o 88     88     `8bo.
+// 88~~~~~   `8b  d8'   88~~~~~  88 V8o88  88~~~~~  88  88  88   88~~~~~   88 V8o88     88       `Y8b.
+// 88.        `8bd8'    88.      88  V888  88.      88  88  88   88.       88  V888     88     db   8D
+// Y88888P      YP      Y88888P  VP   V8P  Y88888P  YP  YP  YP   Y88888P   VP   V8P     YP     `8888Y'
+
+
 
 //Gestion des évenements
 raycaster = new THREE.Raycaster();
@@ -255,6 +350,8 @@ document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 
 
+
+
 //Gestion du fond étoilé
 bgGeometry  = new THREE.SphereGeometry(50, 32, 32);
 bgMaterial  = new THREE.MeshBasicMaterial({
@@ -265,20 +362,15 @@ bgMesh  = new THREE.Mesh(bgGeometry, bgMaterial);
 scene.add(bgMesh);
 
 
-function getCameraCoordGeo(){
-  var factYCamera = camera.position.y>0 ? 1 : -1;
-  var factXCamera = camera.position.z>0 ? -1 : 1;
-  var hyp = Math.sqrt(Math.pow(camera.position.x, 2) + Math.pow(camera.position.z, 2));
-  var rep = {};
-  rep.lat = toDegre(Math.asin(camera.position.y/DISTANT_CAMERA_NORMAL));
-  rep.lon = factXCamera*toDegre(Math.acos(camera.position.x/hyp));
-  rep.x = camera.position.x;
-  rep.y = camera.position.y;
-  rep.z = camera.position.z;
-  return rep;
-}
+// .o88b.     .d8b.    .88b  d88.  d88888b   d8888b.    .d8b.       .88b  d88.    .d88b.   db    db  d88888b
+// d8P  Y8   d8' `8b   88'YbdP`88  88'       88  `8D   d8' `8b      88'YbdP`88   .8P  Y8.  88    88  88'
+// 8P        88ooo88   88  88  88  88ooooo   88oobY'   88ooo88      88  88  88   88    88  Y8    8P  88ooooo
+// 8b        88~~~88   88  88  88  88~~~~~   88`8b     88~~~88      88  88  88   88    88  `8b  d8'  88~~~~~
+// Y8b  d8   88   88   88  88  88  88.       88 `88.   88   88      88  88  88   `8b  d8'   `8bd8'   88.
+// `Y88P'    YP   YP   YP  YP  YP  Y88888P   88   YD   YP   YP      YP  YP  YP    `Y88P'      YP     Y88888P
 
-//Enclenche le déplacement vers un point
+
+//Enclenche le déplacement vers un point en définissant une cible et une action quand le déplacement sera terminé
 function moveTo(coord, duration, animation, rank){
   var anim = Bezier[animation];
   hasTarget = true;
@@ -331,7 +423,7 @@ function approachTarget(){
       if(onClickPoint === CODE_POPIN_OPEN){
         OnoHystoryPopin.display();
         setTimeout(function(){
-          alternSwitch();
+          // alternSwitch();
           soundVoice.play();
         }, 400)
       } else {
@@ -385,6 +477,14 @@ var recenter = {
   }
 }
 
+// d88888D   .d88b.    .d88b.   .88b  d88.
+// YP  d8'  .8P  Y8.  .8P  Y8.  88'YbdP`88
+//    d8'   88    88  88    88  88  88  88
+//   d8'    88    88  88    88  88  88  88
+//  d8' db  `8b  d8'  `8b  d8'  88  88  88
+// d88888P   `Y88P'    `Y88P'   YP  YP  YP
+
+
 var zoomAnim = BezierEasing(Bezier["cameraZoom"][0], Bezier["cameraZoom"][1], Bezier["cameraZoom"][2], Bezier["cameraZoom"][3]);
 var start = null;
 function zoom(){
@@ -399,6 +499,16 @@ function zoom(){
   }
 }
 
+
+// .d8b.     db    db  d8888b.   d888888b   .d88b.
+// d8' `8b   88    88  88  `8D     `88'    .8P  Y8.
+// 88ooo88   88    88  88   88      88     88    88
+// 88~~~88   88    88  88   88      88     88    88
+// 88   88   88b  d88  88  .8D     .88.    `8b  d8'
+// YP   YP    ~Y8888P'  Y8888D'   Y888888P   `Y88P'
+
+
+
 //Create an AudioListener and add it to the camera
 var listener = new THREE.AudioListener();
 camera.add( listener );
@@ -409,22 +519,6 @@ var audioBg = new THREE.AudioLoader();
 
 
 
-//Sun with lenphare 
-// addLight( 0.55, 0.9, 0.5, 0, 0, -15 );
-var textureFlare = textureLoader.load( "lib/three.js-master/examples/textures/lensflare2.jpg" );
-
-function addLight( h, s, l, x, y, z ) {
-  var light = new THREE.PointLight( 0xffffff, 1.5, 2000 );
-  light.color.setHSL( h, s, l );
-  light.position.set( x, y, z );
-  scene.add( light );
-  var flareColor = new THREE.Color( 0xffffff );
-  flareColor.setHSL( h, s, l + 0.5 );
-  var lensFlare = new THREE.LensFlare( textureFlare, 400, 0.0, THREE.AdditiveBlending, flareColor );
-
-  lensFlare.position.copy( light.position );
-  scene.add( lensFlare );
-}
 
 //Load a soundBg and set it as the Audio object's buffer
 audioBg.load( 'assets/audio/ambient.wav', function( buffer ) {
@@ -493,6 +587,15 @@ function initSoundAnalyse() {
 }
 
 initSoundAnalyse();
+
+// d8888b.  d88888b  d8b   db   d8888b.  d88888b   d8888b.
+// 88  `8D  88'      888o  88   88  `8D  88'       88  `8D
+// 88oobY'  88ooooo  88V8o 88   88   88  88ooooo   88oobY'
+// 88`8b    88~~~~~  88 V8o88   88   88  88~~~~~   88`8b
+// 88 `88.  88.      88  V888   88  .8D  88.       88 `88.
+// 88   YD  Y88888P  VP   V8P   Y8888D'  Y88888P   88   YD
+
+
 
 var render = function () {
     requestAnimationFrame(render);
