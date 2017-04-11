@@ -11,6 +11,7 @@ function buildAxis( src, dst, colorHex, dashed ) {
   var axis = new THREE.Line( geom, mat, THREE.LinePieces );
   return axis;
 }
+
 function buildAxes( length ) {
   var axes = new THREE.Object3D();
   axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( length, 0, 0 ), 0xFF0000, false ) ); // +X
@@ -64,18 +65,21 @@ function convertGeoCoord(coord, r){
 //Y888888P  VP   V8P  Y888888P     YP     Y888888P   YP   YP   Y88888P   Y888888P   `8888Y'  YP   YP     YP     Y888888P   `Y88P'    VP   V8P
 
 
-
-
-var scene, camera, renderer, textureLoader,
-controls, light, axes,
-earthGeo, earthMaterial, earthMesh,
-font,
-raycaster, intersects, mouse, activeMesh,
+var scene, camera, renderer,                                                              // Rendu
+textureLoader, audioLoader,                                                               // Loader de texture
+textureFlare, noMaterial,                                                                 // Texture
+controls, axes,
+light, alternateLight, earthlight = [], earthMaterialLight, containerLight, spotLight,    //Gestion des lumières
+earthGeo, earthMaterial, earthMesh,                                                       // terre
+font, groupTexts = [],                                                                    // textes
+raycaster, intersects, mouse, activeMesh,                                                 // evenements
 hasTarget = false,
-bgMesh, bgGeometry, bgMaterial, earthRotation, skyRotation,
-meshBorders, borderGeo, borderMaterial,
-meshCoord, pointGeo, pointMaterial,
-minRadius, maxRadius, distantCamera, needZoom = true;
+bgMesh, bgGeometry, bgMaterial, earthRotation, skyRotation,                               // Fond étoilé
+borderGeo, borderMaterial, meshBorders, meshCoord, pointGeo, pointMaterial, groupMarker,  // points
+minRadius, maxRadius, distantCamera, needZoom = true, zoomAnim, start,                    // Zoom
+soundVoice, soundVoices = [], soundBg, audioBg, analyser, analysers = [], listener;       // Gestion du son
+
+
 const CODE_POPIN_OPEN = 1;
 const CODE_LEFT_SIDE = 2;
 const CODE_RIGHT_SIDE = 3;
@@ -163,10 +167,8 @@ light = new THREE.AmbientLight( 0x404040, 6); // soft white light
 scene.add( light );
 
 //Lumière dirigée
-var spotLight = new THREE.PointLight( 0xffffff, 0);
+spotLight = new THREE.PointLight( 0xffffff, 0);
 scene.add(spotLight);
-
-
 
 
 textures = {
@@ -188,13 +190,13 @@ earthMesh = new THREE.Mesh(earthGeo, earthMaterial);
 scene.add(earthMesh);
 camera.lookAt(earthMesh.position)
 
-var earthsLight = [];
-var earthMaterialLight;
-var noMaterial = new THREE.MeshLambertMaterial({
+earthsLight = [];
+earthMaterialLight;
+noMaterial = new THREE.MeshLambertMaterial({
   transparent: true,
   opacity : 0
 });
-var containerLight = new THREE.Object3D();
+containerLight = new THREE.Object3D();
 scene.add(containerLight);
 
 
@@ -203,7 +205,7 @@ scene.add(containerLight);
 if(SUN_DISPLAY){
   addLight( 0.55, 0.9, 0.5, 0, 0, -15 );
 }
-var textureFlare = textureLoader.load( "lib/three.js-master/examples/textures/lensflare2.jpg" );
+textureFlare = textureLoader.load( "lib/three.js-master/examples/textures/lensflare2.jpg" );
 
 function addLight( h, s, l, x, y, z ) {
   var light = new THREE.PointLight( 0xffffff, 1.5, 2000 );
@@ -263,7 +265,7 @@ function switchOff(interval){
   }
 }
 
-var alternateLight;
+
 function alternSwitch(){
   var isOn = false;
   alternateLight = setInterval(function(){
@@ -278,9 +280,6 @@ function alternSwitch(){
 
 
 
-
-
-
 // .d8b.    d88888b  d88888b  d888888b    .o88b.   db   db   .d8b.     d888b    d88888b      d8888b.    .d88b.   d888888b  d8b   db   d888888b
 //d8' `8b   88'      88'        `88'     d8P  Y8   88   88  d8' `8b   88' Y8b   88'          88  `8D   .8P  Y8.    `88'    888o  88   `~~88~~'
 //88ooo88   88ooo    88ooo       88      8P        88ooo88  88ooo88   88        88ooooo      88oodD'   88    88     88     88V8o 88      88
@@ -289,14 +288,13 @@ function alternSwitch(){
 //YP   YP   YP       YP       Y888888P    `Y88P'   YP   YP  YP   YP    Y888P    Y88888P      88         `Y88P'   Y888888P  VP   V8P      YP
 
 
-
 //Affichage des points
 meshBorders = [];
 borderGeo = new THREE.RingGeometry( 0.12, 0.13, 32);
 borderMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
 pointGeo = new THREE.CircleGeometry( POINT_SIZE, 32);
 pointMaterial  = new THREE.MeshBasicMaterial( { color: 0xffffff,side: THREE.DoubleSide } );
-var groupMarker = new THREE.Group();
+groupMarker = new THREE.Group();
 for(i=0; i<coord.length; i++){
   meshBorders.push(new THREE.Mesh(pointGeo, pointMaterial));
   meshCoord = convertGeoCoord(coord[i], 3);
@@ -309,7 +307,6 @@ for(i=0; i<coord.length; i++){
 }
 earthMesh.add(groupMarker);
 
-// earthMesh.add(axes);
 
 
 //  d88888b  .d88b.   d8b   db  d888888b
@@ -327,7 +324,7 @@ function loadFont() {
   });
 }
 
-var groupTexts = [];
+
 function createTexts(){
   for(i=0; i<meshBorders.length; i++){
     manageTitleCity(meshBorders[i], coord[i].content.name)
@@ -551,8 +548,8 @@ var recenter = {
 // d88888P   `Y88P'    `Y88P'   YP  YP  YP
 
 
-var zoomAnim = BezierEasing(Bezier["cameraZoom"][0], Bezier["cameraZoom"][1], Bezier["cameraZoom"][2], Bezier["cameraZoom"][3]);
-var start = null;
+zoomAnim = BezierEasing(Bezier["cameraZoom"][0], Bezier["cameraZoom"][1], Bezier["cameraZoom"][2], Bezier["cameraZoom"][3]);
+start = null;
 function zoom(){
   var d = new Date().getTime();
   var t = zoomAnim((d - start)/4000);
@@ -574,17 +571,13 @@ function zoom(){
 // YP   YP    ~Y8888P'  Y8888D'   Y888888P   `Y88P'
 
 
-
 //Create an AudioListener and add it to the camera
-var listener = new THREE.AudioListener();
+listener = new THREE.AudioListener();
 camera.add( listener );
 
 // create an Audio source
-var soundBg = new THREE.Audio( listener );
-var audioBg = new THREE.AudioLoader();
-
-
-
+soundBg = new THREE.Audio( listener );
+audioBg = new THREE.AudioLoader();
 
 //Load a soundBg and set it as the Audio object's buffer
 audioBg.load( 'assets/audio/ambient.wav', function( buffer ) {
@@ -595,12 +588,7 @@ audioBg.load( 'assets/audio/ambient.wav', function( buffer ) {
 });
 
 
-//load the testymony
-var soundVoice;
-var soundVoices = [];
-var analysers = [];
-var audioLoader = new THREE.AudioLoader();
-
+audioLoader = new THREE.AudioLoader();
 for(i=0; i<coord.length; i++){
   soundVoices.push(new THREE.Audio( listener ));
   analysers.push(new THREE.AudioAnalyser( soundVoices[i], 128 ));
@@ -625,7 +613,7 @@ for(i=0; i<coord.length; i++){
 
 
 //Create an AudioAnalyser, passing in the soundBg and desired fftSize
-var analyser = analysers[0];
+analyser = analysers[0];
 
 //Get the average frequency of the sound
 function initSoundAnalyse() {
