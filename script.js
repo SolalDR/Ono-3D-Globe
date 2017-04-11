@@ -338,6 +338,7 @@ function onDocumentMouseDown( event ) {
     clearInterval(alternateLight);
     OnoHystoryPopin.hide();
     soundVoice.stop();
+    analyser = null;
     soundVoice = null;
   }
 }
@@ -573,33 +574,34 @@ function initSoundAnalyse() {
   var color = "#ffffff";
   var factor;
   setInterval(function(){
-    time = time + 0.1
-    dataLine.clearRect(0, 0, canvas.width, canvas.height);
-    dataLine.beginPath();
-    if(soundVoice && soundVoice.isPlaying) {
-      factor = (analyser.getAverageFrequency()-7)
-    } else {
-      factor = 0;
-    }
-    var nextFactor;
-    var midWidth = Math.floor(canvas.width/2);
-    for(cnt = 0; cnt <= canvas.width; cnt++) {
-      nextFactor = cnt<=midWidth ? cnt/midWidth : 1-(cnt-midWidth)/midWidth;
-      dataLine.lineTo(cnt, canvas.height * 0.5 - (2 + Math.cos(time + cnt * 0.05) *(factor*nextFactor*0.7)));
-    }
-    dataLine.lineWidth = 2-1/(analyser.getAverageFrequency()/3);
-    dataLine.strokeStyle = color;
-    dataLine.stroke();
+    if(analyser){
+      time = time + 0.1
+      dataLine.clearRect(0, 0, canvas.width, canvas.height);
+      dataLine.beginPath();
+      if(soundVoice && soundVoice.isPlaying) {
+        factor = (analyser.getAverageFrequency()-7)
+      } else {
+        factor = 0;
+      }
+      var nextFactor;
+      var midWidth = Math.floor(canvas.width/2);
+      for(cnt = 0; cnt <= canvas.width; cnt++) {
+        nextFactor = cnt<=midWidth ? cnt/midWidth : 1-(cnt-midWidth)/midWidth;
+        dataLine.lineTo(cnt, canvas.height * 0.5 - (2 + Math.cos(time + cnt * 0.05) *(factor*nextFactor*0.7)));
+      }
+      dataLine.lineWidth = 2-1/(analyser.getAverageFrequency()/3);
+      dataLine.strokeStyle = color;
+      dataLine.stroke();
 
-    dataLine.beginPath();
-    for(cnt = -1; cnt <= canvas.width; cnt++) {
-      nextFactor = cnt<=midWidth ? cnt/midWidth : 1-(cnt-midWidth)/midWidth;
-      dataLine.lineTo(cnt, canvas.height * 0.5 - (2 + Math.cos(time + cnt * 0.05) * (factor*nextFactor*0.6)));
+      dataLine.beginPath();
+      for(cnt = -1; cnt <= canvas.width; cnt++) {
+        nextFactor = cnt<=midWidth ? cnt/midWidth : 1-(cnt-midWidth)/midWidth;
+        dataLine.lineTo(cnt, canvas.height * 0.5 - (2 + Math.cos(time + cnt * 0.05) * (factor*nextFactor*0.6)));
+      }
+      dataLine.lineWidth = 1*(2-1/analyser.getAverageFrequency());
+      dataLine.strokeStyle = color;
+      dataLine.stroke();
     }
-    dataLine.lineWidth = 1*(2-1/analyser.getAverageFrequency());
-    dataLine.strokeStyle = color;
-    dataLine.stroke();
-
   }, 10);
 }
 
