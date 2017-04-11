@@ -23,8 +23,8 @@ var coord = [
         ]
       }
     },
-    lat: 51.5085,
-    lon: -0.1257
+    lat: 43.653226,
+    lon: -79.38318429999998
   },
   // {
   //   content: {
@@ -130,7 +130,7 @@ var coord = [
   },
   {
     content: {
-      name: "France",
+      name:"Paris",
       text : "Moi, c'est Christine, j'ai 56 ans. J'ai perdu la vue brusquement à l'âge de 27 ans. En Août 1987, j'apprends que je suis atteinte d'une rétinite pigmentaire. En quelques jours je n'y vois plus rien. Je ne vais pas vous mentir, le choc a été violent mais il m'a fallu choisir entre devenir un poids pour ma famille (ma fille a alors 3 ans) et la société, ou bien me battre. J'ai choisis la deuxième solution : être la plus autonome possible et vivre une vie normale. Je pratique le ski de fond, le tandem et aussi l'équitation. Pour mes déplacements à l'extérieur, un chien guide me permet d'aller où je veux, quand je le veux en toute sécurité. J'ai aussi appris le braille et beaucoup d'autres choses indispensables encore. À côté de ça, j'ai à cœur d'aller témoigner dans des écoles, des collèges, des lycées, dans des entreprises aussi afin de mieux faire connaître le handicap visuel et permettre de favoriser le lien avec les personnes valides. Le non-voyant fait peur et en parler encore et encore aide à faire tomber des barrières. Atteinte de cécité visuelle, je ne lis actuellement que le braille. Mais il vient d'arriver sur le marché un formidable outil technologique, une caméra miniature qui se fixe sur une branche de lunette et retranscrit par voix de synthèse ce qu’elle voit. Celle-ci permet de prendre connaissance de son courrier, lire un livre, le journal, des affiches publicitaires ou même des panneaux d'affichage. Cet outil s’appelle MY EYE, c’est une révolution dans le monde des déficients visuels. Aujourd'hui j'ai testé MY EYE et je réalise toutes ces petites choses de votre quotidien qu'il me permettrait de faire et du confort incomparable qu'il m'apporterait, une véritable révolution. Juste un exemple, j'adore lire, or voilà : votre livre de poche en tant que voyant, qui tient dans votre poche, s'apparente à une encyclopédie de 6 à 9 gros volumes sitôt traduit en braille ! De plus, le coût d'un ouvrage en braille est prohibitif, donc je dois le réserver à l'AVH (Association Valentin Haüy) et il m'arrive par la Poste dans des valises plusieurs mois après sa parution en librairie. Indiscutablement, cette toute petite caméra serait une aide visuelle des plus précieuses pour moi, mais son coût élevé a brisé là net mes espoirs. Avec l’aide de l’opticien “Vue de rêve” nous avons mis en place un projet de financement collaboratif et grâce à la plateforme HUMAID, mon rêve est devenu réalité. Mon objectif de 2840€ à été atteint en quelques mois grâce aux dons des utilisateurs de la plateforme, et grâce aux services que HUMAID offre. La consommation collaborative à vraiment changé ma vie.",
       data : [
         {
@@ -149,7 +149,7 @@ var coord = [
   },
   {
     content: {
-      name: "Philippine",
+      name: "Manilles",
       text : "Je m’appelle Lani et je suis des Philippine. Il y a neuf mois, une nouvelle a bouleversé ma vie, j’étais enceinte. Pour certains ce peut être une excellente nouvelle, le début d’une nouvelle vie. Mais moi j’avais peur. Peur de ne pas avoir être à la hauteur, peur de ne pas avoir toutes les connaissances pour élever cet enfant. Ma grossesse s’est très bien déroulée mais le moment tant attendu est arrivé plus vite que prévu. J’ai enfin pu rencontrer mon bébé, c’était merveilleux, mais un tas de questions restaient sans réponses… Heureusement, dans l'hôpital, l’organisation ACCESS Santé Internationale a mis en place le projet e-Akap. Ainsi, lors de mon séjour, j’ai eu accès à une tablette avec toutes sortes d’informations médicales et de soins concernant mon bébé. Les médecins m’ont alors expliqué que ces tablettes étaient initialement prévues pour les équipes médicales. Mais au vu du taux de la mortalité infantile, ils ont préférés les mettre à disposition des jeunes parents, novices dans l’accueil d’un bébé. Cette prévention sur les soins nécessaires aux nourrissons m’a permis, ainsi qu’à ma famille, d’être beaucoup mieux informée sur comment gérer la période post-natale et a assuré à mon bébé tous les soins et l’attention dont il avait besoin.",
       data : [
         {

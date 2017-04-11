@@ -69,6 +69,7 @@ function convertGeoCoord(coord, r){
 var scene, camera, renderer, textureLoader,
 controls, light, axes,
 earthGeo, earthMaterial, earthMesh,
+font,
 raycaster, intersects, mouse, activeMesh,
 hasTarget = false,
 bgMesh, bgGeometry, bgMaterial, earthRotation, skyRotation,
@@ -275,6 +276,11 @@ function alternSwitch(){
   }, 100*earthsLight.length-1000)
 }
 
+
+
+
+
+
 // .d8b.    d88888b  d88888b  d888888b    .o88b.   db   db   .d8b.     d888b    d88888b      d8888b.    .d88b.   d888888b  d8b   db   d888888b
 //d8' `8b   88'      88'        `88'     d8P  Y8   88   88  d8' `8b   88' Y8b   88'          88  `8D   .8P  Y8.    `88'    888o  88   `~~88~~'
 //88ooo88   88ooo    88ooo       88      8P        88ooo88  88ooo88   88        88ooooo      88oodD'   88    88     88     88V8o 88      88
@@ -290,6 +296,7 @@ borderGeo = new THREE.RingGeometry( 0.12, 0.13, 32);
 borderMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
 pointGeo = new THREE.CircleGeometry( POINT_SIZE, 32);
 pointMaterial  = new THREE.MeshBasicMaterial( { color: 0xffffff,side: THREE.DoubleSide } );
+var groupMarker = new THREE.Group();
 for(i=0; i<coord.length; i++){
   meshBorders.push(new THREE.Mesh(pointGeo, pointMaterial));
   meshCoord = convertGeoCoord(coord[i], 3);
@@ -297,9 +304,65 @@ for(i=0; i<coord.length; i++){
   meshBorders[i].lookAt(new THREE.Vector3(0, 0, 0));
   meshBorders[i].add(new THREE.Mesh( borderGeo, borderMaterial ));
   meshBorders[i].rank = i;
-  earthMesh.add(meshBorders[i]);
+  groupMarker.add(meshBorders[i])
+
 }
+earthMesh.add(groupMarker);
+
 // earthMesh.add(axes);
+
+
+//  d88888b  .d88b.   d8b   db  d888888b
+//  88'     .8P  Y8.  888o  88  `~~88~~'
+//  88ooo   88    88  88V8o 88     88
+//  88~~~   88    88  88 V8o88     88
+//  88      `8b  d8'  88  V888     88
+//  YP       `Y88P'   VP   V8P     YP
+
+function loadFont() {
+  var loader = new THREE.FontLoader();
+  loader.load( 'assets/Roboto/Roboto_Regular.json', function ( response ) {
+    font = response;
+    createTexts();
+  });
+}
+
+var groupTexts = [];
+function createTexts(){
+  for(i=0; i<meshBorders.length; i++){
+    manageTitleCity(meshBorders[i], coord[i].content.name)
+  }
+}
+
+function manageTitleCity(marker, title){
+  if(marker != null){
+    var position = marker.position;
+    var material = material = new THREE.MultiMaterial( [
+      new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.FlatShading } ), // front
+			new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.SmoothShading } ) // side
+		]);
+    var textGeo = new THREE.TextGeometry( title.toUpperCase(), {
+      font: font,
+      size: .07,
+      height: .01,
+      material: 0,
+      extrudeMaterial: 1
+    });
+
+    cityMarker = new THREE.Mesh( textGeo, material );
+    var center = cityMarker.geometry.center();
+    cityMarker.geometry.translate(center.x/2, center.y/2, center.z/2 );
+    cityMarker.position.set(position.x*1.1, position.y*1.1, position.z*1.1)
+
+    groupTexts.push(cityMarker);
+    earthMesh.add(cityMarker);
+    cityMarker.lookAt(camera.position)
+
+  }
+}
+
+loadFont();
+
 
 
 // d88888b   db    db   d88888b  d8b   db  d88888b  .88b  d88.   d88888b   d8b   db  d888888b  .d8888.
@@ -308,7 +371,6 @@ for(i=0; i<coord.length; i++){
 // 88~~~~~   `8b  d8'   88~~~~~  88 V8o88  88~~~~~  88  88  88   88~~~~~   88 V8o88     88       `Y8b.
 // 88.        `8bd8'    88.      88  V888  88.      88  88  88   88.       88  V888     88     db   8D
 // Y88888P      YP      Y88888P  VP   V8P  Y88888P  YP  YP  YP   Y88888P   VP   V8P     YP     `8888Y'
-
 
 
 //Gestion des évenements
@@ -322,7 +384,7 @@ function onDocumentMouseMove( event ) {
 
 function onDocumentMouseDown( event ) {
   event.preventDefault();
-  var intersects = raycaster.intersectObjects( earthMesh.children );
+  var intersects = raycaster.intersectObjects( groupMarker.children );
   if(recenter.isNeed){
     var anim = Bezier[TIMING_FUNCTION];
     recenter.init(BezierEasing(anim[0], anim[1], anim[2], anim[3]));
@@ -342,16 +404,16 @@ function onDocumentMouseDown( event ) {
     soundVoice = null;
   }
 }
+
 function onWindowResize(){
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize( window.innerWidth, window.innerHeight );
 }
+
 window.addEventListener( 'resize', onWindowResize, false );
 document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-
-
 
 
 //Gestion du fond étoilé
@@ -630,6 +692,10 @@ var render = function () {
       zoom();
     }
 
+    for(i=0; i<groupTexts.length; i++){
+      groupTexts[i].lookAt(camera.position);
+    }
+
     if(!hasTarget || recenter.isMoving){
       if(earthRotation){
         earthMesh.rotation.y += 0.001;
@@ -645,7 +711,7 @@ var render = function () {
     raycaster.setFromCamera( mouse, camera );
 
     //Lumière sur la terre
-    intersectsEarth = raycaster.intersectObject(earthMesh);
+    intersectsEarth = raycaster.intersectObject(groupMarker);
     if ( intersectsEarth.length > 0 ) {
       spotLight.position.copy( intersectsEarth[0].point );
       spotLight.position.x *= 1.1;
