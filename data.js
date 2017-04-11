@@ -26,101 +26,81 @@ var coord = [
     lat: 51.5085,
     lon: -0.1257
   },
-  {
-    content: {
-      name: "New York",
-      text : "Bonjour les gens, c'est génial",
-      data : [
-        {
-          count: 70,
-          type: "%",
-          text:"20% des gens sont fans du numérique"
-        },
-        {
-          count: 30,
-          type: "%",
-          text:"20% des gens sont fans du numérique"
-        }
-      ]
-    },
-    lat:40.7142700,
-    lon: -74.0059700
-  },
-  {
-    content: {
-      name: "Brasilia",
-      text : "Bonjour les gens, c'est génial",
-      data : [
-        {
-          count: 20,
-          type: "%",
-          text:"20% des gens sont fans du numérique"
-        }
-      ]
-    },
-    lat: -15.7797200,
-    lon: -47.9297200
-  },
-  {
-    content: {
-      name: "Le Caire",
-      text : "Bonjour les gens, c'est génial",
-      data : [
-        {
-          count: 20,
-          type: "%",
-          text:"20% des gens sont fans du numérique"
-        }
-      ]
-    },
-    lat: 30.0626300,
-    lon: 31.2496700
-  },
-  {
-    content: {
-      name: "Melbourne",
-      text : "Bonjour les gens, c'est génial",
-      data : [
-        {
-          count: 20,
-          type: "%",
-          text:"20% des gens sont fans du numérique"
-        }
-      ]
-    },
-    lat: -37.8140000,
-    lon: 144.9633200
-  },
-  {
-    content: {
-      name: "Manchester",
-      text : "Bonjour les gens, c'est génial",
-      data : [
-        {
-          count: 20,
-          type: "%",
-          text:"20% des gens sont fans du numérique"
-        }
-      ]
-    },
-    lat: 53.4809,
-    lon: -2.2374
-  },
-  {
-    content: {
-      name: "Tokyo",
-      text : "Bonjour les gens, c'est génial",
-      data : [
-        {
-          count: 20,
-          type: "%",
-          text:"20% des gens sont fans du numérique"
-        }
-      ]
-    },
-    lat: 35.6895000,
-    lon: 139.6917100
-  },
+  // {
+  //   content: {
+  //     name: "Brasilia",
+  //     text : "Bonjour les gens, c'est génial",
+  //     data : [
+  //       {
+  //         count: 20,
+  //         type: "%",
+  //         text:"20% des gens sont fans du numérique"
+  //       }
+  //     ]
+  //   },
+  //   lat: -15.7797200,
+  //   lon: -47.9297200
+  // },
+  // {
+  //   content: {
+  //     name: "Le Caire",
+  //     text : "Bonjour les gens, c'est génial",
+  //     data : [
+  //       {
+  //         count: 20,
+  //         type: "%",
+  //         text:"20% des gens sont fans du numérique"
+  //       }
+  //     ]
+  //   },
+  //   lat: 30.0626300,
+  //   lon: 31.2496700
+  // },
+  // {
+  //   content: {
+  //     name: "Melbourne",
+  //     text : "Bonjour les gens, c'est génial",
+  //     data : [
+  //       {
+  //         count: 20,
+  //         type: "%",
+  //         text:"20% des gens sont fans du numérique"
+  //       }
+  //     ]
+  //   },
+  //   lat: -37.8140000,
+  //   lon: 144.9633200
+  // },
+  // {
+  //   content: {
+  //     name: "Manchester",
+  //     text : "Bonjour les gens, c'est génial",
+  //     data : [
+  //       {
+  //         count: 20,
+  //         type: "%",
+  //         text:"20% des gens sont fans du numérique"
+  //       }
+  //     ]
+  //   },
+  //   lat: 53.4809,
+  //   lon: -2.2374
+  // },
+  // {
+  //   content: {
+  //     name: "Tokyo",
+  //     text : "Bonjour les gens, c'est génial",
+  //     data : [
+  //       {
+  //         count: 20,
+  //         type: "%",
+  //         text:"20% des gens sont fans du numérique"
+  //       }
+  //     ]
+  //   },
+  //   lat: 35.6895000,
+  //   lon: 139.6917100
+  // },
   {
     content: {
       name: "Namibie",
@@ -161,15 +141,7 @@ var coord = [
       ],
       voice: {
         fileName: "france.m4a",
-        duration: 53,
-        keyValues: [
-          [6300, 20],
-          [12000, 34],
-          [14500, 41],
-          [16000, 48],
-          [19500, 60],
-          [36000, 113]
-        ]
+        duration: 53
       }
     },
     lat: 48.866667,
@@ -185,19 +157,19 @@ var coord = [
           type: "%",
           text:"20% des gens sont fans du numérique"
         }
-      ]
-    },
-    voice: {
-      fileName: "philippines.m4a",
-      duration: 53,
-      keyValues: [
-        [6300, 20],
-        [12000, 34],
-        [14500, 41],
-        [16000, 48],
-        [19500, 60],
-        [36000, 113]
-      ]
+      ],
+      voice: {
+        fileName: "philippines.m4a",
+        duration: 53,
+        keyValues: [
+          [6300, 20],
+          [12000, 34],
+          [14500, 41],
+          [16000, 48],
+          [19500, 60],
+          [36000, 113]
+        ]
+      }
     },
     lat: 14.6042,
     lon: 120.9822

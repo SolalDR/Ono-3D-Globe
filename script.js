@@ -338,6 +338,7 @@ function onDocumentMouseDown( event ) {
     clearInterval(alternateLight);
     OnoHystoryPopin.hide();
     soundVoice.stop();
+    soundVoice = null;
   }
 }
 function onWindowResize(){
@@ -374,6 +375,8 @@ scene.add(bgMesh);
 function moveTo(coord, duration, animation, rank){
   var anim = Bezier[animation];
   hasTarget = true;
+  soundVoice = soundVoices[rank]
+  analyser = analysers[rank]
   target = {
     rank : rank,
     startMove : new Date().getTime(),
@@ -530,23 +533,37 @@ audioBg.load( 'assets/audio/ambient.wav', function( buffer ) {
 
 
 //load the testymony
-var soundVoice = new THREE.Audio( listener );
-var audioVoice = new THREE.AudioLoader();
+var soundVoice;
+var soundVoices = [];
+var analysers = [];
+var audioLoader = new THREE.AudioLoader();
 
-audioVoice.load( 'assets/audio/interculturelle.wav', function( buffer ) {
-	soundVoice.setBuffer( buffer );
-	soundVoice.setLoop(false);
-	soundVoice.setVolume(3);
-});
-
-
-soundVoice.onEnded = function() {
-  soundVoice.stop();
-  analyser.fftSize = 0
-
+for(i=0; i<coord.length; i++){
+  soundVoices.push(new THREE.Audio( listener ));
+  analysers.push(new THREE.AudioAnalyser( soundVoices[i], 128 ));
+  (function(){
+    var r = i;
+    if(coord[r].content.voice){
+      audioLoader.load( 'assets/audio/'+coord[r].content.voice.fileName, function( buffer ) {
+        soundVoices[r].setBuffer( buffer );
+        soundVoices[r].setLoop(false);
+        soundVoices[r].setVolume(3);
+      });
+      soundVoices[r].onEnded = function() {
+        this.stop();
+        analyser.fftSize = 0
+      }
+    }
+  })();
 }
+
+
+
+
+
 //Create an AudioAnalyser, passing in the soundBg and desired fftSize
-var analyser = new THREE.AudioAnalyser( soundVoice, 128 );
+var analyser = analysers[0];
+
 //Get the average frequency of the sound
 function initSoundAnalyse() {
   var canvas = document.getElementById("soundCanvas");
@@ -559,7 +576,7 @@ function initSoundAnalyse() {
     time = time + 0.1
     dataLine.clearRect(0, 0, canvas.width, canvas.height);
     dataLine.beginPath();
-    if(soundVoice.isPlaying) {
+    if(soundVoice && soundVoice.isPlaying) {
       factor = (analyser.getAverageFrequency()-7)
     } else {
       factor = 0;

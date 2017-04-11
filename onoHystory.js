@@ -1,5 +1,6 @@
 OnoHystoryPopin = {
   els:{},
+
   display:function(){
     this.updateContent(target.targetCoord.content);
 
@@ -19,7 +20,9 @@ OnoHystoryPopin = {
     setTimeout(function(){
       self.displayData();
     },baseDuration+this.textSpell.duration);
+
   },
+
   displayData:function(){
     var self = this;
     for(i=0; i<this.els.data.length; i++){
@@ -30,12 +33,13 @@ OnoHystoryPopin = {
           el.active();
         }, 800*rank)
       })();
-
     }
   },
+
   hide:function(){
     var self = this;
     self.el.className = self.el.className.replace("visible", "hidding");
+    this.textSpell.stopInterval();
     setTimeout(function(){
       self.el.className = self.el.className.replace("hidding", "hidden");
       self.els.title.className = self.els.title.className.replace("visible", "hidden");
@@ -54,10 +58,11 @@ OnoHystoryPopin = {
   },
   updateContent:function(content){
     this.els.dataContainer.innerHTML = "";
+    this.textSpell = null;
+    this.els.content.innerHTML = "";
     this.els.data = [];
     this.els.title.innerHTML = content.name;
     this.els.content.innerHTML = content.text;
-    console.log(content.voice);
     if(content.voice){
       this.textSpell = new DynamicSpell({
         el: this.els.content,
@@ -163,13 +168,16 @@ function DynamicSpell(config){
     this.textSplit = this.el.innerHTML.split(this.pas);
     this.el.innerHTML = "";
     this.keys = config.keys ? config.keys : null;
-    console.log(this.keys, config.keys);
     for(i=0; i<this.textSplit.length; i++){
       this.el.innerHTML += "<span class=\"hide\">"+this.textSplit[i]+" </span>";
     }
     this.textSplit = this.el.getElementsByTagName("span");
     this.duration = config.duration ? config.duration : 2000;
   }
+}
+
+DynamicSpell.prototype.stopInterval = function(interval){
+  clearInterval(this.interval);
 }
 
 DynamicSpell.prototype.startInterval = function(interval){
@@ -181,7 +189,6 @@ DynamicSpell.prototype.startInterval = function(interval){
     self.textSplit[self.rank].className = self.textSplit[self.rank].className.replace("hide", "display");
     self.rank++;
 
-    console.log(self.currentKey, self.keys);
     //Si des clés existe et qu'on a atteint la limite de cette clé (Le nombre de mot final de la clé est égale au nombre de mots actuellement traité)
     if(self.currentKey>=0 && self.keys[self.currentKey][1]==self.rank){
       self.currentKey++
