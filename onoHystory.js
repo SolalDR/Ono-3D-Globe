@@ -156,3 +156,19 @@ OnoHystoryLoader = {
   }
 }
 OnoHystoryLoader.init();
+
+SoundVolume = {
+  initEvents:function(){
+    this.mainLevelRange.addEventListener("change", function(){
+
+    }, false);
+    this.cutSoundButton.addEventListener("click", function(){
+
+    }, false); 
+  },
+  init:function(){
+    this.mainLevelRange = document.getElementById("range-volume");
+    this.cutSoundButton = document.getElementById("cut-sound");
+    this.initEvents();
+  }
+}

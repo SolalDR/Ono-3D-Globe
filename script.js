@@ -380,7 +380,6 @@ function onDocumentMouseMove( event ) {
 }
 
 function onDocumentMouseDown( event ) {
-  event.preventDefault();
   var intersects = raycaster.intersectObjects( groupMarker.children );
   if(recenter.isNeed){
     var anim = Bezier[TIMING_FUNCTION];

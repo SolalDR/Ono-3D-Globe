@@ -232,7 +232,17 @@ svg {
 	top: 0;
 }
 
+.sound-manage {
+  position:fixed;
+  bottom: 20px;
+  right: 50px;
+  
+  z-index: 2;
+}
+.sound-manage input[type="range"] {
+  width: auto;
 
+}
 
 #loader {
 	position: fixed;
