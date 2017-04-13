@@ -1,0 +1,140 @@
+#soundCanvas {
+	opacity: 0.6;
+	position: absolute;
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.popin {
+	border-radius: 50%;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	background-color: rgba(0,0,0,.7);
+	-webkit-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	-ms-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	-o-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	-webkit-transition: 1s;
+	-o-transition: 1s;
+	transition: 1s;
+}
+
+/*Visible au premier plan*/
+.popin.visible {
+	-webkit-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1);
+	-ms-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1);
+	-o-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1);
+	transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1);
+	z-index: 1;
+	background-color: rgba(0,0,0,0.7);
+}
+
+/*Caché au premier plan*/
+.popin.hidding {
+	z-index: 1;
+	-webkit-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	-ms-transform: translateX(-50%) translateY(-50%) translateZ(0)  scale(0);
+	-o-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	background-color: rgba(0,0,0,0);
+}
+
+/*Caché en arrière plan*/
+.popin.hidden {
+	z-index: -1;
+	-webkit-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	-ms-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	-o-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+}
+
+
+.popin .container {
+	position: fixed;
+	width: 100vw;
+	height: 100vh;
+	top: 50%;
+	left: 50%;
+	-webkit-transform: translateX(-50%) translateY(-50%);
+	-ms-transform: translateX(-50%) translateY(-50%);
+	-o-transform: translateX(-50%) translateY(-50%);
+	transform: translateX(-50%) translateY(-50%);
+}
+
+.popin .container .center {
+	width: 60%;
+	margin: auto;
+	color: white;
+	position: relative;
+	top: 50%;
+	-webkit-transform: translateY(-50%);
+	-ms-transform: translateY(-50%);
+	-o-transform: translateY(-50%);
+	transform: translateY(-50%);
+	font-family: "Roboto";
+	font-weight: 100;
+}
+
+.popin .container .center .title {
+	font-size: 1.5em;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	text-align: center;
+}
+
+.popin .container .center .title.visible{
+	opacity: 1;
+}
+.popin .container .center .title.hidden{
+	opacity: 0;
+}
+
+
+.popin .container .center .sound {
+	height: 0;
+}
+
+.popin .container .center .content {
+	margin: 20px 0;
+	text-align: center;
+	font-weight: 100;
+	font-size: .9em;
+	opacity: .7;
+	line-height: 1.3em;
+}
+
+.popin .container .center .content span {
+	-webkit-transition: .4s;
+	-o-transition: .4s;
+	transition: .4s;
+	/*font-size: 38px;*/
+}
+.popin .container .center .content span.hide {
+	opacity: 0;
+}
+.popin .container .center .content span.display {
+	opacity: 1;
+}
+
+.popin .container .center .data-visualisation {
+	position: relative;
+	text-align: center;
+}
+
+.popin .container .center .progress {
+	display: inline-block;
+	width: 30px;
+	height: 30px;
+	-webkit-transition: .5s;
+	-o-transition: .5s;
+	transition: .5s;
+	margin-left: 20px;
+}
+.popin .container .center .progress.hide {
+	opacity: 0;
+}
+.popin .container .center .progress.display {
+	opacity: 1;
+}

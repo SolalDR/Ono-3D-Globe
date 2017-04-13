@@ -1,0 +1,37 @@
+circle {
+  opacity: 0.1;
+}
+circle.bar {
+  opacity: 1;
+  stroke-dashoffset: 10;
+  transition: 1000ms stroke-dashoffset;
+  stroke-linecap: round;
+}
+circle.bar.colorBack {
+	opacity: 0.1;
+}
+input {
+  opacity: 0.5;
+  border: 0;
+  padding: 3px;
+  width: 30px;
+}
+.progress {
+  position: relative;
+}
+.progress .countDisplay {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	font-weight: bold;
+	-webkit-transform: translateY(-50%) translateX(-50%);
+	-ms-transform: translateY(-50%) translateX(-50%);
+	-o-transform: translateY(-50%) translateX(-50%);
+	transform: translateY(-50%) translateX(-50%);
+}
+svg {
+  position: absolute;
+  transform: rotate(-90deg);
+	left: 0;
+	top: 0;
+}
