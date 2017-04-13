@@ -1,24 +1,12 @@
 // Credit to Ana Tudor
 // The mixins are based on Ana Tudor's pen codepen.io/thebabydino/pen/pvLPOQ
-.sound-manage {
-  position:fixed;
-  bottom: 20px;
-  right: 50px;
-  z-index: 2;
-}
-.sound-manage input[type="range"] {
-  width: auto;
-  -webkit-transform: rotate(90deg);
-  -ms-transform: rotate(90deg);
-  transform: rotate(90deg);
-}
 
 
 
-$slider-track-thickness: 8px;
+$slider-track-thickness: 7px;
 $slider-thumb-size: 30px;
-$slider-height: 300px;
-$slider-width: 40px;
+$slider-height: 150px;
+$slider-width: 10px;
 $color-theme: #3D3D4A;
 $color-track: #343440;
 
@@ -38,6 +26,29 @@ $color-track: #343440;
   height: $slider-thumb-size;
   opacity: 0;
 }
+
+
+.sound-manage {
+  position:fixed;
+  bottom: 40px;
+  right: 80px;
+  z-index: 2;
+  height: $slider-height+140px;
+  button {
+    width: 40px;
+    height: 40px;
+    border-radius: 100%;
+    border: 0;
+    background-color: white;
+    position: absolute;
+    bottom: 0;
+    transform: translateX(-50%);
+  }
+}
+.sound-manage input[type="range"] {
+  width: auto;
+}
+
 
 *, *:before,*:after{
   box-sizing: border-box;
@@ -70,12 +81,14 @@ body{
   display: inline-block;
   top: 100%;
   left: 50%;
-  transform: translate(-50%, -100%);
+  transform: translate(-50%, -50%);
   padding-bottom: 20px;
+  position: absolute;
+  top: calc(50% - 40px);
+  padding-bottom: 0;
   @media(min-height: 500px){
     position: absolute;
     top: 50%;
-    transform: translate(-50%, -50%);
     padding-bottom: 0;
   }
 }
@@ -92,7 +105,7 @@ body{
     // Display value
     position: absolute;
     top: -2em;
-    left: .5em;
+    left: -.5em;
     content: attr(data-slider-value) '%';
     color: white;
     font-size: 90%;
