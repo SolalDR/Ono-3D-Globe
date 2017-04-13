@@ -64,6 +64,7 @@ OnoHystoryPopin = {
     this.els.content.innerHTML = "";
     this.els.data = [];
     this.els.title.innerHTML = content.name;
+    this.els.country.innerHTML = content.country; 
     this.els.content.innerHTML = content.text;
 
     if(this.DYNAMIC_SPELL_ACTIVE){
@@ -105,6 +106,7 @@ OnoHystoryPopin = {
     this.els.title = this.el.getElementsByClassName("title")[0];
     this.els.content = this.el.getElementsByClassName("content")[0];
     this.els.dataContainer = this.el.getElementsByClassName("data-visualisation")[0];
+    this.els.country = this.el.getElementsByClassName("country")[0];
     this.els.datas= [];
     var size = (window.innerWidth > window.innerHeight ? window.innerWidth : window.innerHeight)*2;
     this.el.style.height = size+"px";

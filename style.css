@@ -211,6 +211,10 @@ svg {
           opacity: 1; }
         .popin .container .center .title.hidden {
           opacity: 0; }
+      .popin .container .center .country {
+        color: #DDD;
+        text-transform: uppercase;
+        margin-top: 8px; }
       .popin .container .center .sound {
         height: 0; }
       .popin .container .center .content {
