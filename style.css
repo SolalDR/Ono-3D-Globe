@@ -425,4 +425,19 @@ body {
 .theme3 {
   background: linear-gradient(yellow, orange); }
 
+.navigation {
+  position: absolute;
+  top: 64px;
+  left: 96px; }
+  .navigation img#logo {
+    width: 100px;
+    transform: translateX(-50px);
+    -webkit-filter: grayscale(1);
+    filter: grayscale(1);
+    transition: filter 1s; }
+  .navigation img#logo:hover {
+    -webkit-filter: grayscale(0);
+    filter: grayscale(0);
+    transition: filter 1s; }
+
 /*# sourceMappingURL=style.css.map */
