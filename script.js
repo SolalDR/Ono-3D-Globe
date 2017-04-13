@@ -628,7 +628,7 @@ function initSoundAnalyse() {
       dataLine.clearRect(0, 0, canvas.width, canvas.height);
       dataLine.beginPath();
       if(soundVoice && soundVoice.isPlaying) {
-        factor = (analyser.getAverageFrequency()-7)
+        factor = (analyser.getAverageFrequency()-10)
       } else {
         factor = 0;
       }
