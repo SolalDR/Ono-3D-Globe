@@ -15,10 +15,10 @@
       </div>
     </div>
     <div class="sound-manage">
-      <button id="cut-sound"></button>
+      <button id="cut-sound" class="sound"></button>
       <div class="container">
         <div class="range-slider">
-          <input id="range-volume" type="range" orient="vertical" min="0" max="100" />
+          <input id="range-volume" type="range" orient="vertical" min="0" max="100"/>
           <div class="range-slider__bar"></div>
           <div class="range-slider__thumb"></div>
         </div>
@@ -28,14 +28,14 @@
       <div class="container">
         <div class="center">
           <div class="title"></div>
+          <canvas id="soundCanvas" width="200" height="70"></canvas>
           <div class="content"></div>
           <div class="data-visualisation"></div>
-          <div class=" audio-controll">
+          <div class="audio-controll">
             <div class="restart"></div>
             <div class="player"><p>></p></div>
             <div class="reset"></div>
           </div>
-          <canvas id="soundCanvas" width="200" height="50"></canvas>
         </div>
 
       </div>

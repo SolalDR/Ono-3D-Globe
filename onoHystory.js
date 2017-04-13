@@ -1,6 +1,6 @@
 OnoHystoryPopin = {
   els:{},
-
+  DYNAMIC_SPELL_ACTIVE: false,
   display:function(){
     this.updateContent(target.targetCoord.content);
 
@@ -63,19 +63,22 @@ OnoHystoryPopin = {
     this.els.data = [];
     this.els.title.innerHTML = content.name;
     this.els.content.innerHTML = content.text;
-    if(content.voice){
-      this.textSpell = new DynamicSpell({
-        el: this.els.content,
-        pas: /\s/,
-        duration: content.voice.duration*1000,
-        keys: content.voice.keyValues
-      });
-    } else {
-      this.textSpell = new DynamicSpell({
-        el: this.els.content,
-        pas: /\s/,
-        duration: 2000
-      });
+
+    if(this.DYNAMIC_SPELL_ACTIVE){
+      if(content.voice){
+        this.textSpell = new DynamicSpell({
+          el: this.els.content,
+          pas: /\s/,
+          duration: content.voice.duration*1000,
+          keys: content.voice.keyValues
+        });
+      } else {
+        this.textSpell = new DynamicSpell({
+          el: this.els.content,
+          pas: /\s/,
+          duration: 2000
+        });
+      }
     }
 
 
@@ -157,22 +160,6 @@ OnoHystoryLoader = {
 }
 OnoHystoryLoader.init();
 
-SoundVolume = {
-  initEvents:function(){
-    this.mainLevelRange.addEventListener("change", function(){
-
-    }, false);
-    this.cutSoundButton.addEventListener("click", function(){
-
-    }, false);
-  },
-  init:function(){
-    this.mainLevelRange = document.getElementById("range-volume");
-    this.cutSoundButton = document.getElementById("cut-sound");
-    this.initEvents();
-  }
-}
-
 
 var app = function () {
 
@@ -203,7 +190,7 @@ var app = function () {
 (function initAndSetupTheSliders() {
   var inputs = [].slice.call(document.querySelectorAll('.range-slider input'));
   inputs.forEach(function (input) {
-    return input.setAttribute('value', '50');
+    return input.setAttribute('value', '100');
   });
   inputs.forEach(function (input) {
     return app.updateSlider(input);

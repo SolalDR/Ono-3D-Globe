@@ -628,7 +628,7 @@ function initSoundAnalyse() {
       dataLine.clearRect(0, 0, canvas.width, canvas.height);
       dataLine.beginPath();
       if(soundVoice && soundVoice.isPlaying) {
-        factor = (analyser.getAverageFrequency()-10)
+        factor = (analyser.getAverageFrequency()-7)
       } else {
         factor = 0;
       }
@@ -636,7 +636,7 @@ function initSoundAnalyse() {
       var midWidth = Math.floor(canvas.width/2);
       for(cnt = 0; cnt <= canvas.width; cnt++) {
         nextFactor = cnt<=midWidth ? cnt/midWidth : 1-(cnt-midWidth)/midWidth;
-        dataLine.lineTo(cnt, canvas.height * 0.5 - (2 + Math.cos(time + cnt * 0.05) *(factor*nextFactor*0.7)));
+        dataLine.lineTo(cnt, canvas.height * 0.5 - (2 + Math.cos(time + cnt * 0.1) *(factor*nextFactor*0.3)));
       }
       dataLine.lineWidth = 2-1/(analyser.getAverageFrequency()/3);
       dataLine.strokeStyle = color;
@@ -645,16 +645,74 @@ function initSoundAnalyse() {
       dataLine.beginPath();
       for(cnt = -1; cnt <= canvas.width; cnt++) {
         nextFactor = cnt<=midWidth ? cnt/midWidth : 1-(cnt-midWidth)/midWidth;
-        dataLine.lineTo(cnt, canvas.height * 0.5 - (2 + Math.cos(time + cnt * 0.05) * (factor*nextFactor*0.6)));
+        dataLine.lineTo(cnt, canvas.height * 0.5 - (2 + Math.cos(time + cnt * 0.1) * (factor*nextFactor*0.2)));
       }
       dataLine.lineWidth = 1*(2-1/analyser.getAverageFrequency());
       dataLine.strokeStyle = color;
       dataLine.stroke();
     }
-  }, 10);
+  }, 30);
 }
 
 initSoundAnalyse();
+
+
+
+SoundVolume = {
+  max: {
+    bgSound: .2,
+    voiceSound: 3
+  },
+  current: 100,
+  mute: false,
+  setActiveSound:function(active){
+    this.mute = active ? true : false;
+    if(this.mute){
+      this.cutSoundButton.classList.remove("sound");
+      this.cutSoundButton.classList.add("mute");
+    } else {
+      this.cutSoundButton.classList.remove("mute");
+      this.cutSoundButton.classList.add("sound");
+    }
+    this.setVolume(this.current);
+  },
+  setVolume:function(percent){
+    this.current = percent;
+    if(this.mute){
+      this.bgSound.setVolume(0);
+      for(i=0; i<this.soundVoices.length; i++){
+        this.soundVoices[i].setVolume(0);
+      }
+    } else {
+      this.bgSound.setVolume(this.max.bgSound/100*percent);
+      for(i=0; i<this.soundVoices.length; i++){
+        this.soundVoices[i].setVolume(this.max.voiceSound/100*percent);
+      }
+    }
+  },
+  initEvents:function(){
+    var self = this;
+    this.mainLevelRange.addEventListener("change", function(){
+      self.setVolume(parseInt(this.value));
+    }, false);
+    this.cutSoundButton.addEventListener("click", function(){
+      if(self.mute){
+        self.setActiveSound(false);
+      } else {
+        self.setActiveSound(true);
+      }
+    }, false);
+  },
+  init:function(){
+    this.mainLevelRange = document.getElementById("range-volume");
+    this.cutSoundButton = document.getElementById("cut-sound");
+    this.bgSound = soundBg;
+    this.soundVoices = soundVoices;
+    console.log(this.bgSound, this.cutSoundButton);
+    this.initEvents();
+  }
+}
+
 
 // d8888b.  d88888b  d8b   db   d8888b.  d88888b   d8888b.
 // 88  `8D  88'      888o  88   88  `8D  88'       88  `8D
@@ -724,6 +782,7 @@ window.onload = function(){
     OnoHystoryPopin.init();
     genLight();
     render();
+    SoundVolume.init();
     OnoHystoryLoader.loadCallBack();
   }, 2000)
 }

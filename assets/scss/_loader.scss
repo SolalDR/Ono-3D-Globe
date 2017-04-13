@@ -1,5 +1,6 @@
 #loader {
 	position: fixed;
+	z-index: 999;
 	height: 100vh;
 	width: 100%;
 	top: 0;
@@ -46,6 +47,6 @@
 #loader .container .count {
 	font-weight: bold;
 	display: inline-block;
-	color: #27cece;
+	color: #68A05C;
 	font-size: 4em;
 }
