@@ -391,15 +391,20 @@ function onDocumentMouseDown( event ) {
   } else if ( intersects.length > 0) {
     moveTo(coord[intersects[0].object.rank], DURATION_MOVE, TIMING_FUNCTION, intersects[0].object.rank);
   }
+
+}
+
+var closePopin = function(){
   if(OnoHystoryPopin.isDisplay()){
     switchOff(30);
-    clearInterval(alternateLight);
+    // clearInterval(alternateLight);
     OnoHystoryPopin.hide();
     soundVoice.stop();
     analyser = null;
     soundVoice = null;
   }
 }
+document.getElementById("close-popin").onclick = closePopin;
 
 function onWindowResize(){
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -665,6 +670,7 @@ SoundVolume = {
   },
   current: 100,
   mute: false,
+  play: true,
   setActiveSound:function(active){
     this.mute = active ? true : false;
     if(this.mute){
@@ -702,13 +708,39 @@ SoundVolume = {
         self.setActiveSound(true);
       }
     }, false);
+
+    this.startBtn.addEventListener("click", function(){
+      if(soundVoice.isPlaying) {
+        soundVoice.pause();
+        self.startBtn.className = "play";
+      } else {
+        soundVoice.play();
+        self.startBtn.className = "pause";
+      }
+    }, false);
+
+    this.stopBtn.addEventListener("click", function(){
+      soundVoice.stop();
+      self.startBtn.className = "play";
+    }, false);
+
+    this.resetBtn.addEventListener("click", function(){
+      soundVoice.stop();
+      setTimeout(function(){
+        soundVoice.play();
+      }, 40)
+      self.startBtn.className = "pause";
+    }, false);
+
   },
   init:function(){
     this.mainLevelRange = document.getElementById("range-volume");
     this.cutSoundButton = document.getElementById("cut-sound");
+    this.startBtn = document.getElementById("start-voice-btn");
+    this.stopBtn = document.getElementById("stop-voice-btn");
+    this.resetBtn = document.getElementById("restart-voice-btn");
     this.bgSound = soundBg;
     this.soundVoices = soundVoices;
-    console.log(this.bgSound, this.cutSoundButton);
     this.initEvents();
   }
 }

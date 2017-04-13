@@ -13,13 +13,13 @@ OnoHystoryPopin = {
 
     //On lance le text
     setTimeout(function(){
-      self.textSpell.run();
+      // self.textSpell.run();
       self.els.title.className = self.els.title.className.replace("hidden", "visible");
     },baseDuration);
 
-    setTimeout(function(){
-      self.displayData();
-    },baseDuration+this.textSpell.duration);
+    // setTimeout(function(){
+    //   self.displayData();
+    // },baseDuration+this.textSpell.duration);
 
   },
 
@@ -39,7 +39,9 @@ OnoHystoryPopin = {
   hide:function(){
     var self = this;
     self.el.className = self.el.className.replace("visible", "hidding");
-    this.textSpell.stopInterval();
+    if(this.textSpell){
+      this.textSpell.stopInterval();
+    }
     setTimeout(function(){
       self.el.className = self.el.className.replace("hidding", "hidden");
       self.els.title.className = self.els.title.className.replace("visible", "hidden");
@@ -82,17 +84,20 @@ OnoHystoryPopin = {
     }
 
 
-    for(i=0; i<content.data.length; i++){
-      this.els.data.push(new CircleProgress(content.data[i].count, {
-        content: content.data[i].text,
-        width: 60,
-        height: 60,
-        weight: 5,
-        parent: this.els.dataContainer,
-        displayCount : true,
-        animStrokeBack : true
-      }));
+    if(content.data){
+      for(i=0; i<content.data.length; i++){
+        this.els.data.push(new CircleProgress(content.data[i].count, {
+          content: content.data[i].text,
+          width: 60,
+          height: 60,
+          weight: 5,
+          parent: this.els.dataContainer,
+          displayCount : true,
+          animStrokeBack : true
+        }));
+      }
     }
+
 
   },
   init:function(){

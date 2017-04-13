@@ -142,10 +142,10 @@ svg {
   top: 50%;
   left: 50%;
   background-color: rgba(0, 0, 0, 0.7);
-  -webkit-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
-  -ms-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
-  -o-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
-  transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+  -webkit-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1);
+  -ms-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1);
+  -o-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1);
+  transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1);
   -webkit-transition: 1s;
   -o-transition: 1s;
   transition: 1s; }
@@ -154,14 +154,12 @@ svg {
     -ms-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1);
     -o-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1);
     transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1);
+    opacity: 1;
     z-index: 1;
     background-color: rgba(0, 0, 0, 0.7); }
   .popin.hidding {
     z-index: 1;
-    -webkit-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
-    -ms-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
-    -o-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
-    transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+    opacity: 0;
     background-color: transparent; }
   .popin.hidden {
     z-index: -1;
@@ -169,6 +167,18 @@ svg {
     -ms-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
     -o-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
     transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0); }
+  .popin #close-popin {
+    position: absolute;
+    top: 64px;
+    right: 96px;
+    border: 0;
+    width: 25px;
+    height: 25px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    background-color: transparent;
+    background-image: url(assets/pictures/cancel.svg); }
   .popin .container {
     position: fixed;
     width: 100vw;
@@ -182,6 +192,7 @@ svg {
     transform: translateX(-50%) translateY(-50%); }
     .popin .container .center {
       width: 80%;
+      max-width: 960px;
       margin: auto;
       color: white;
       position: relative;
@@ -206,9 +217,9 @@ svg {
         margin: 40px 0;
         text-align: left;
         font-weight: 100;
-        font-size: 0.9em;
+        font-size: 1em;
         opacity: .7;
-        line-height: 1.3em;
+        line-height: 1.2em;
         overflow-y: scroll;
         height: 300px; }
         .popin .container .center .content::-webkit-scrollbar {
@@ -225,13 +236,6 @@ svg {
       .popin .container .center .data-visualisation {
         position: relative;
         text-align: center; }
-      .popin .container .center .audio-controll {
-        justify-content: center; }
-        .popin .container .center .audio-controll .player {
-          height: 20px;
-          width: 20px;
-          border-radius: 20px;
-          border: 1px solid white; }
       .popin .container .center .progress {
         display: inline-block;
         width: 30px;
@@ -244,6 +248,32 @@ svg {
           opacity: 0; }
         .popin .container .center .progress.display {
           opacity: 1; }
+      .popin .container .center .audio-controll {
+        text-align: center; }
+        .popin .container .center .audio-controll div {
+          display: inline-block;
+          background-color: #68A05C;
+          margin: 10px 5px;
+          border-radius: 100%;
+          background-repeat: no-repeat;
+          background-position: center;
+          background-size: 50%;
+          width: 30px;
+          height: 30px; }
+        .popin .container .center .audio-controll #start-voice-btn {
+          height: 50px;
+          width: 50px;
+          transform: translateY(10px);
+          background-image: url(assets/pictures/pause.svg); }
+          .popin .container .center .audio-controll #start-voice-btn.play {
+            background-image: url(assets/pictures/play.svg); }
+          .popin .container .center .audio-controll #start-voice-btn.pause {
+            background-image: url(assets/pictures/pause.svg); }
+        .popin .container .center .audio-controll #restart-voice-btn {
+          background-image: url(assets/pictures/return.svg); }
+        .popin .container .center .audio-controll #stop-voice-btn {
+          background-size: 40%;
+          background-image: url(assets/pictures/stop.svg); }
 
 .sound-manage {
   position: fixed;
