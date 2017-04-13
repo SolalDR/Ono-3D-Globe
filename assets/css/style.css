@@ -1,0 +1,287 @@
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+@font-face {
+    font-family: "Roboto";
+    src: url(../Roboto/Roboto-regular.ttf);
+}
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+	overflow: hidden;
+	background-color: black;
+	color: white;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+.popin {
+	border-radius: 50%;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	background-color: rgba(0,0,0,.7);
+	-webkit-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	-ms-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	-o-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	-webkit-transition: 1s;
+	-o-transition: 1s;
+	transition: 1s;
+}
+
+/*Visible au premier plan*/
+.popin.visible {
+	-webkit-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1);
+	-ms-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1);
+	-o-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1);
+	transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1);
+	z-index: 1;
+	background-color: rgba(0,0,0,0.7);
+}
+
+/*Caché au premier plan*/
+.popin.hidding {
+	z-index: 1;
+	-webkit-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	-ms-transform: translateX(-50%) translateY(-50%) translateZ(0)  scale(0);
+	-o-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	background-color: rgba(0,0,0,0);
+}
+
+/*Caché en arrière plan*/
+.popin.hidden {
+	z-index: -1;
+	-webkit-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	-ms-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	-o-transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+	transform: translateX(-50%) translateY(-50%) translateZ(0) scale(0);
+}
+
+
+.popin .container {
+	position: fixed;
+	width: 100vw;
+	height: 100vh;
+	top: 50%;
+	left: 50%;
+	-webkit-transform: translateX(-50%) translateY(-50%);
+	-ms-transform: translateX(-50%) translateY(-50%);
+	-o-transform: translateX(-50%) translateY(-50%);
+	transform: translateX(-50%) translateY(-50%);
+}
+
+.popin .container .center {
+	width: 60%;
+	margin: auto;
+	color: white;
+	position: relative;
+	top: 50%;
+	-webkit-transform: translateY(-50%);
+	-ms-transform: translateY(-50%);
+	-o-transform: translateY(-50%);
+	transform: translateY(-50%);
+	font-family: "Roboto";
+	font-weight: 100;
+}
+
+.popin .container .center .title {
+	font-size: 1.5em;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	text-align: center;
+}
+
+.popin .container .center .title.visible{
+	opacity: 1;
+}
+.popin .container .center .title.hidden{
+	opacity: 0;
+}
+
+
+.popin .container .center .sound {
+	height: 0;
+}
+
+.popin .container .center .content {
+	margin: 20px 0;
+	text-align: center;
+	font-weight: 100;
+	font-size: .9em;
+	opacity: .7;
+	line-height: 1.3em;
+}
+
+.popin .container .center .content span {
+	-webkit-transition: .4s;
+	-o-transition: .4s;
+	transition: .4s;
+	/*font-size: 38px;*/
+}
+.popin .container .center .content span.hide {
+	opacity: 0;
+}
+.popin .container .center .content span.display {
+	opacity: 1;
+}
+
+.popin .container .center .data-visualisation {
+	position: relative;
+	text-align: center;
+}
+
+.popin .container .center .progress {
+	display: inline-block;
+	width: 30px;
+	height: 30px;
+	-webkit-transition: .5s;
+	-o-transition: .5s;
+	transition: .5s;
+	margin-left: 20px;
+}
+.popin .container .center .progress.hide {
+	opacity: 0;
+}
+.popin .container .center .progress.display {
+	opacity: 1;
+}
+
+#soundCanvas {
+	opacity: 0.6;
+	position: absolute;
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+circle {
+  opacity: 0.1;
+}
+circle.bar {
+  opacity: 1;
+  stroke-dashoffset: 10;
+  transition: 1000ms stroke-dashoffset;
+  stroke-linecap: round;
+}
+circle.bar.colorBack {
+	opacity: 0.1;
+}
+input {
+  opacity: 0.5;
+  border: 0;
+  padding: 3px;
+  width: 30px;
+}
+.progress {
+  position: relative;
+}
+.progress .countDisplay {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	font-weight: bold;
+	-webkit-transform: translateY(-50%) translateX(-50%);
+	-ms-transform: translateY(-50%) translateX(-50%);
+	-o-transform: translateY(-50%) translateX(-50%);
+	transform: translateY(-50%) translateX(-50%);
+}
+svg {
+  position: absolute;
+  transform: rotate(-90deg);
+	left: 0;
+	top: 0;
+}
+
+
+
+#loader {
+	position: fixed;
+	height: 100vh;
+	width: 100%;
+	top: 0;
+	left: 0;
+	background-color: rgb(0,0,0);
+	-webkit-transition: 2s;
+	-o-transition: 2s;
+	transition: 2s;
+}
+
+#loader.visible {
+	opacity: 1;
+}
+
+#loader.hidden {
+	opacity: 0;
+}
+
+#loader .container {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	-webkit-transform: translateX(-50%) translateY(-50%);
+	-ms-transform: translateX(-50%) translateY(-50%);
+	-o-transform: translateX(-50%) translateY(-50%);
+	transform: translateX(-50%) translateY(-50%);
+	color: white;
+	font-size: 2em;
+	font-family: "Roboto";
+	font-weight: 100;
+	width: auto;
+	text-align: left;
+
+}
+
+#loader .container .little {
+	font-size: .7em;
+}
+
+#loader .container .lib {
+	display: inline-block;
+}
+
+#loader .container .count {
+	font-weight: bold;
+	display: inline-block;
+	color: #27cece;
+	font-size: 4em;
+}

@@ -64,7 +64,7 @@ OnoHystoryPopin = {
     this.els.content.innerHTML = "";
     this.els.data = [];
     this.els.title.innerHTML = content.name;
-    this.els.country.innerHTML = content.country; 
+    this.els.country.innerHTML = content.country;
     this.els.content.innerHTML = content.text;
 
     if(this.DYNAMIC_SPELL_ACTIVE){
@@ -214,3 +214,13 @@ var app = function () {
     });
   });
 })();
+
+var plateformLink = document.getElementById("plateform-link");
+document.getElementById("logo").onclick=function(){
+  console.log(this, plateformLink);
+  if(plateformLink.className.match("hidden")){
+    plateformLink.className =plateformLink.className.replace("hidden", "visible");
+  } else {
+    plateformLink.className =plateformLink.className.replace("visible", "hidden");
+  }
+}
